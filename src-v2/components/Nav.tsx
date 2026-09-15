@@ -28,8 +28,9 @@ export default function Nav() {
 
   const goTo = (id: string) => {
     setOpen(false);
+    // Navigation is fire-and-forget: Home reads scrollTo from location.state.
     if (location.pathname !== '/') {
-      navigate('/', { state: { scrollTo: id } });
+      void navigate('/', { state: { scrollTo: id } });
     } else {
       document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
     }
@@ -38,7 +39,9 @@ export default function Nav() {
   return (
     <header
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ${
-        scrolled || open ? 'bg-paper/85 backdrop-blur-md border-b border-line' : 'border-b border-transparent'
+        scrolled || open
+          ? 'bg-paper/85 backdrop-blur-md border-b border-line'
+          : 'border-b border-transparent'
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-10">
@@ -77,8 +80,12 @@ export default function Nav() {
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen(!open)}
         >
-          <span className={`h-px w-6 bg-ink transition-transform ${open ? 'translate-y-[3.5px] rotate-45' : ''}`} />
-          <span className={`h-px w-6 bg-ink transition-transform ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`} />
+          <span
+            className={`h-px w-6 bg-ink transition-transform ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
+          />
+          <span
+            className={`h-px w-6 bg-ink transition-transform ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`}
+          />
         </button>
       </div>
 

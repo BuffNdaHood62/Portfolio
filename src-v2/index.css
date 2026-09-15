@@ -49,6 +49,10 @@
   @apply font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-muted;
 }
 
+/* Intentionally kept alongside the useReducedMotion() checks in components:
+   the hook skips JS-driven (framer-motion) animation, while this covers raw
+   CSS transitions and the animate-pulse-dot utility that run on the compositor.
+   Neither alone is sufficient — do not remove. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

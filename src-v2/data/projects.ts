@@ -13,19 +13,6 @@ import detailWaveform from '../assets/covers/waveform-detail.svg';
 
 export type ProjectType = 'Product UX' | 'Design System' | 'Creative Frontend';
 
-export const projectTypes: ProjectType[] = ['Product UX', 'Design System', 'Creative Frontend'];
-
-export const projectIndustries = ['Payments', 'Lending', 'Savings'];
-
-export const projectSkills = [
-  'Research',
-  'Design Tokens',
-  'WebGL',
-  'Motion Design',
-  'Conversion',
-  'React',
-];
-
 export interface CaseStudy {
   slug: string;
   title: string;
@@ -97,8 +84,15 @@ export const projects: CaseStudy[] = [
     cover: coverPulse,
     before: beforePulse,
     gallery: [
-      { src: coverPulse, caption: 'The redesigned dashboard — transfers and collections first, everything else one level down' },
-      { src: detailPulse, caption: 'Progressive onboarding: first transfer value shown before setup completes' },
+      {
+        src: coverPulse,
+        caption:
+          'The redesigned dashboard — transfers and collections first, everything else one level down',
+      },
+      {
+        src: detailPulse,
+        caption: 'Progressive onboarding: first transfer value shown before setup completes',
+      },
       { src: beforePulse, caption: 'The original dashboard — data-first, task-last' },
     ],
     testimonial: {
@@ -164,8 +158,14 @@ export const projects: CaseStudy[] = [
     cover: coverAtlas,
     before: beforeAtlas,
     gallery: [
-      { src: coverAtlas, caption: 'The consolidated component library — 38 components, one vocabulary' },
-      { src: detailAtlas, caption: 'Three-tier token architecture: primitive → semantic → component' },
+      {
+        src: coverAtlas,
+        caption: 'The consolidated component library — 38 components, one vocabulary',
+      },
+      {
+        src: detailAtlas,
+        caption: 'Three-tier token architecture: primitive → semantic → component',
+      },
       { src: beforeAtlas, caption: 'Before: five product teams, five different button styles' },
     ],
     testimonial: {
@@ -175,7 +175,7 @@ export const projects: CaseStudy[] = [
       role: 'Head of Engineering, Kobo',
     },
     context:
-      'Kobo\'s platform serves banks, microfinance institutions and BNPL startups across Nigeria. After three acquisitions, the product carried four teams\' worth of UI patterns: three button styles, two date pickers and no shared vocabulary — a real problem when every screen must pass partner bank security review.',
+      "Kobo's platform serves banks, microfinance institutions and BNPL startups across Nigeria. After three acquisitions, the product carried four teams' worth of UI patterns: three button styles, two date pickers and no shared vocabulary — a real problem when every screen must pass partner bank security review.",
     problem:
       'Design and engineering were working from different sources of truth. Figma components drifted from code, new features took weeks of bespoke UI work, and visual regressions were caught by partner banks — not by Kobo.',
     process: [
@@ -192,7 +192,7 @@ export const projects: CaseStudy[] = [
       {
         index: '03',
         title: 'Living documentation',
-        body: 'Every component ships in Storybook with usage guidelines, do/don\'t examples and accessibility notes in plain English — the docs are the contract.',
+        body: "Every component ships in Storybook with usage guidelines, do/don't examples and accessibility notes in plain English — the docs are the contract.",
       },
       {
         index: '04',
@@ -231,9 +231,18 @@ export const projects: CaseStudy[] = [
     cover: coverNomad,
     before: beforeNomad,
     gallery: [
-      { src: coverNomad, caption: 'Goal-first flow: target, amount and schedule as persistent cards' },
-      { src: detailNomad, caption: 'Start with ₦500 — lowering the barrier to a funded first goal' },
-      { src: beforeNomad, caption: 'Before: a linear form that lost people before they saved a kobo' },
+      {
+        src: coverNomad,
+        caption: 'Goal-first flow: target, amount and schedule as persistent cards',
+      },
+      {
+        src: detailNomad,
+        caption: 'Start with ₦500 — lowering the barrier to a funded first goal',
+      },
+      {
+        src: beforeNomad,
+        caption: 'Before: a linear form that lost people before they saved a kobo',
+      },
     ],
     testimonial: {
       quote:
@@ -268,7 +277,7 @@ export const projects: CaseStudy[] = [
       },
     ],
     solution:
-      'A goal-first onboarding with upfront fee transparency, cross-device continuity and a start-small funding path. The redesign treats saving like a habit to begin — not a form to survive — and meets people where Nigeria\'s savings culture already lives.',
+      "A goal-first onboarding with upfront fee transparency, cross-device continuity and a start-small funding path. The redesign treats saving like a habit to begin — not a form to survive — and meets people where Nigeria's savings culture already lives.",
     outcomes: [
       { value: '+21%', label: 'Sign-up to funded goal' },
       { value: '+45%', label: 'Cross-device completions' },
@@ -298,7 +307,10 @@ export const projects: CaseStudy[] = [
     cover: coverWaveform,
     before: beforeWaveform,
     gallery: [
-      { src: coverWaveform, caption: 'Transaction-reactive visuals — the network rendered as light' },
+      {
+        src: coverWaveform,
+        caption: 'Transaction-reactive visuals — the network rendered as light',
+      },
       { src: detailWaveform, caption: 'Merchant stories generating their own visual identity' },
       { src: beforeWaveform, caption: 'Before: a standard grid that bounced in 29 seconds' },
     ],

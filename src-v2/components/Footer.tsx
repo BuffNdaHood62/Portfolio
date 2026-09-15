@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../data/site';
 
 export default function Footer() {
@@ -7,7 +7,8 @@ export default function Footer() {
   const year = new Date().getFullYear();
 
   const goTo = (id: string) => {
-    if (location.pathname !== '/') navigate('/', { state: { scrollTo: id } });
+    // Navigation is fire-and-forget: Home reads scrollTo from location.state.
+    if (location.pathname !== '/') void navigate('/', { state: { scrollTo: id } });
     else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
@@ -58,7 +59,9 @@ export default function Footer() {
         </div>
 
         <div className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-xs text-muted md:flex-row md:items-center md:justify-between">
-          <p>© {year} {site.name}. All rights reserved.</p>
+          <p>
+            © {year} {site.name}. All rights reserved.
+          </p>
           <p className="font-mono text-[0.65rem] tracking-[0.2em] uppercase">
             Designed & built in Lagos
           </p>

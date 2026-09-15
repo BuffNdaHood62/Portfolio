@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
-import { getProject, projects } from '../data/projects';
+import { getProject, relatedProjects } from '../data/projects';
 import Reveal, { LineMask } from '../components/Reveal';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -27,8 +27,9 @@ export default function CaseStudy() {
     );
   }
 
-  const idx = projects.findIndex((p) => p.slug === project.slug);
-  const next = projects[(idx + 1) % projects.length];
+  const related = relatedProjects(project, 1);
+  const next = related[0]?.project ?? getProject(project.slug)!;
+  const nextReason = related[0]?.reasons[0];
 
   return (
     <article>
@@ -104,17 +105,34 @@ export default function CaseStudy() {
           </Reveal>
 
           <div className="space-y-16 md:col-span-8">
+            {project.details.length > 0 && (
+              <Reveal>
+                <div className="border-l-2 border-accent pl-6 md:pl-8">
+                  <div className="space-y-5 text-lg leading-relaxed md:text-xl">
+                    {project.details.map((paragraph) => (
+                      <p key={paragraph.slice(0, 40)}>{paragraph}</p>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            )}
             <Reveal>
-              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">Context</h2>
+              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">
+                Context
+              </h2>
               <p className="mt-4 text-base leading-relaxed text-muted">{project.context}</p>
             </Reveal>
             <Reveal>
-              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">The problem</h2>
+              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">
+                The problem
+              </h2>
               <p className="mt-4 text-base leading-relaxed text-muted">{project.problem}</p>
             </Reveal>
 
             <Reveal>
-              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">Process</h2>
+              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">
+                Process
+              </h2>
               <ol className="mt-6 flex flex-col divide-y divide-line border-y border-line">
                 {project.process.map((step) => (
                   <li key={step.index} className="grid gap-2 py-6 md:grid-cols-12 md:gap-6">
@@ -131,7 +149,9 @@ export default function CaseStudy() {
             </Reveal>
 
             <Reveal>
-              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">Solution</h2>
+              <h2 className="font-display text-2xl font-medium tracking-tight md:text-3xl">
+                Solution
+              </h2>
               <p className="mt-4 text-base leading-relaxed text-muted">{project.solution}</p>
             </Reveal>
           </div>
@@ -143,9 +163,16 @@ export default function CaseStudy() {
             <Reveal key={i}>
               <figure>
                 <div className="overflow-hidden rounded-lg bg-surface">
-                  <img src={g.src} alt={g.caption} loading="lazy" className="aspect-[16/10] w-full object-cover" />
+                  <img
+                    src={g.src}
+                    alt={g.caption}
+                    loading="lazy"
+                    className="aspect-[16/10] w-full object-cover"
+                  />
                 </div>
-                <figcaption className="mt-3 text-xs leading-relaxed text-muted">{g.caption}</figcaption>
+                <figcaption className="mt-3 text-xs leading-relaxed text-muted">
+                  {g.caption}
+                </figcaption>
               </figure>
             </Reveal>
           ))}
@@ -202,7 +229,9 @@ export default function CaseStudy() {
               </span>
             </p>
           </div>
-          <p className="text-sm text-muted">{next.category}</p>
+          <p className="text-sm text-muted">
+            {nextReason ? `${next.category} · shares ${nextReason}` : next.category}
+          </p>
         </Link>
       </nav>
     </article>

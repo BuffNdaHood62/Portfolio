@@ -43,7 +43,9 @@ export default function BookingCalendar() {
       day: 'numeric',
       month: 'long',
     });
-    const subject = encodeURIComponent(`Intro call request — ${dateLabel}, ${slot} (${booking.timezone})`);
+    const subject = encodeURIComponent(
+      `Intro call request — ${dateLabel}, ${slot} (${booking.timezone})`,
+    );
     const body = encodeURIComponent(
       `Hi ${site.firstName},\n\nI'd like to book the ${booking.label.toLowerCase()} on ${dateLabel} at ${slot} (${booking.timezone}).\n\nLooking forward to it!`,
     );
@@ -54,7 +56,9 @@ export default function BookingCalendar() {
   return (
     <div className="flex h-full flex-col rounded-lg border border-line bg-paper p-6 md:p-8">
       <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-display text-xl font-medium tracking-tight md:text-2xl">{booking.label}</h3>
+        <h3 className="font-display text-xl font-medium tracking-tight md:text-2xl">
+          {booking.label}
+        </h3>
         <p className="label">{booking.timezone}</p>
       </div>
 
@@ -87,7 +91,12 @@ export default function BookingCalendar() {
             </button>
           </motion.div>
         ) : (
-          <motion.div key="picker" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-6 flex flex-1 flex-col">
+          <motion.div
+            key="picker"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="mt-6 flex flex-1 flex-col"
+          >
             <p className="label">Pick a day</p>
             <div className="mt-3 grid grid-cols-4 gap-2">
               {days.map((d, i) => (

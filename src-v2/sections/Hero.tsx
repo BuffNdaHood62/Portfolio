@@ -1,5 +1,7 @@
+import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { site } from '../data/site';
+import { projects } from '../data/projects';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
 
@@ -7,6 +9,7 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function Hero() {
   const reduce = useReducedMotion();
+  const featured = projects[0];
 
   return (
     <section className="flex min-h-[92vh] flex-col justify-end px-6 pt-32 pb-16 md:px-10 md:pb-24">
@@ -48,12 +51,12 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-4"
           >
             <Magnetic>
-              <a
-                href="#/case-study/nairaflow"
+              <Link
+                to={`/case-study/${featured.slug}`}
                 className="inline-block rounded-full bg-ink px-7 py-3.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
               >
                 View the work
-              </a>
+              </Link>
             </Magnetic>
             <Magnetic>
               <a
@@ -75,7 +78,9 @@ export default function Hero() {
           {site.stats.map((s) => (
             <div key={s.label} className="flex flex-col">
               <dt className="order-2 mt-1 text-sm text-muted">{s.label}</dt>
-              <dd className="font-display text-3xl font-medium tracking-tight md:text-4xl">{s.value}</dd>
+              <dd className="font-display text-3xl font-medium tracking-tight md:text-4xl">
+                {s.value}
+              </dd>
             </div>
           ))}
         </motion.dl>

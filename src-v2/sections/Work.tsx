@@ -5,8 +5,6 @@ import { site } from '../data/site';
 import SectionHeading from '../components/SectionHeading';
 import Reveal from '../components/Reveal';
 
-const EASE = [0.22, 1, 0.36, 1] as const;
-
 export default function Work() {
   return (
     <section id="work" className="scroll-mt-24 px-6 py-24 md:px-10 md:py-36">
@@ -52,7 +50,9 @@ export default function Work() {
                   <dl className="mt-6 flex flex-wrap gap-x-8 gap-y-3">
                     {p.outcomes.slice(0, 2).map((o) => (
                       <div key={o.label}>
-                        <dd className="font-display text-xl font-medium tracking-tight">{o.value}</dd>
+                        <dd className="font-display text-xl font-medium tracking-tight">
+                          {o.value}
+                        </dd>
                         <dt className="mt-0.5 text-xs text-muted">{o.label}</dt>
                       </div>
                     ))}

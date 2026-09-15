@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+  <rect width="1200" height="800" fill="#141412"/>
+  <g fill="none" stroke="#262623" stroke-width="1">
+    <circle cx="600" cy="800" r="260"/>
+    <circle cx="600" cy="800" r="420"/>
+    <circle cx="600" cy="800" r="580"/>
+  </g>
+  <path d="M 220 620 Q 500 240 900 400" fill="none" stroke="#ccff00" stroke-width="2.5" stroke-dasharray="2 14" stroke-linecap="round"/>
+  <path d="M 340 720 Q 640 460 1020 640" fill="none" stroke="#8f8f88" stroke-width="1.5" stroke-dasharray="2 12" stroke-linecap="round"/>
+  <g fill="#f2f2ef">
+    <circle cx="220" cy="620" r="6"/>
+    <circle cx="900" cy="400" r="6"/>
+  </g>
+  <circle cx="1020" cy="640" r="6" fill="#ccff00"/>
+  <circle cx="340" cy="720" r="4" fill="#8f8f88"/>
+  <g fill="none" stroke="#f2f2ef" stroke-width="1.5">
+    <circle cx="220" cy="620" r="14"/>
+    <circle cx="900" cy="400" r="14"/>
+    <circle cx="1020" cy="640" r="14" stroke="#ccff00"/>
+  </g>
+  <g stroke="#2e2e2a" stroke-width="1.5">
+    <line x1="120" y1="160" x2="320" y2="160"/>
+    <line x1="120" y1="180" x2="280" y2="180"/>
+  </g>
+  <rect x="60" y="60" width="14" height="14" fill="#ccff00"/>
+</svg>

@@ -50,14 +50,19 @@ Michael Nnamdi portfolio. React 19 + Vite 6 + TypeScript + Tailwind v4, static d
 - `vite preview` can return 502 for assets through the sandbox proxy even when the
   files are correct. Verify by reading `dist/` directly.
 
-## Open content issues (flagged, not fixed)
+## Content single-source-of-truth rule (learned the hard way)
 
-- `sections/Testimonials.tsx` has **no `id`** (all other anchored sections do), so
-  it is unreachable from Nav/Footer — neither links it.
-- Testimonials copy in `data/site.ts` cites **Pulse / Atlas / Waveform**, which are
-  not in the project roster (Nairaflow / Kobo / Ajo / Owo). Leftover from the
-  Pulse/Atlas/Nomad/Waveform naming (still visible in `assets/covers/` filenames).
-  Case-study testimonials are correctly matched; only the standalone section is stale.
+- **Testimonials render from `projects`, NOT from a standalone list.** Each
+  project carries its own `testimonial` in `data/projects.ts`, and
+  `sections/Testimonials.tsx` maps over `projects`. Do not reintroduce a
+  duplicate testimonial array in `site.ts` — the previous one drifted and ended
+  up attributing quotes to companies (Pulse/Atlas/Waveform) that do not exist
+  in the roster (Nairaflow/Kobo/Ajo/Owo). Fixed in `9bf621a`.
+- `data/site.ts` holds only site-wide copy (name, role, intro, stats, socials,
+  booking, process, services). Project-specific content lives in `projects.ts`.
+- **Nav breakpoint is `lg`, not `md`.** Six links (work, approach, services,
+  about, testimonials, contact) do not fit at 768px. If you add a seventh link,
+  re-check the width or shorten a label.
 
 ## History
 

@@ -57,30 +57,6 @@ export const services = [
   },
 ];
 
-export const testimonials = [
-  {
-    quote:
-      'Michael rebuilt our onboarding end to end and activation jumped 34% in one quarter. The rare designer who ships production code and sweats the metrics.',
-    author: 'Maya Lindqvist',
-    role: 'VP Product, Pulse',
-    rating: 5,
-  },
-  {
-    quote:
-      'Our design system went from a Figma graveyard to a living library the whole org actually uses. Delivery speed on new features roughly doubled.',
-    author: 'Daniel Okafor',
-    role: 'Head of Engineering, Atlas',
-    rating: 5,
-  },
-  {
-    quote:
-      'The site Michael designed and built for us feels like nothing else in our category. Clients mention it in the first five minutes of every call.',
-    author: 'Sofia Marchetti',
-    role: 'Founder, Waveform',
-    rating: 5,
-  },
-];
-
 export const booking = {
   label: 'Free 30-min intro call',
   timezone: 'WAT — Lagos (UTC+1)',

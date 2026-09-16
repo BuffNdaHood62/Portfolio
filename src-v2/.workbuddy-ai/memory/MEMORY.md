@@ -39,10 +39,25 @@ Michael Nnamdi portfolio. React 19 + Vite 6 + TypeScript + Tailwind v4, static d
 
 ## Environment gotchas (not project bugs)
 
+- **Dev server: use `127.0.0.1`, NOT `0.0.0.0`.** `npm run dev` is
+  `vite --host 0.0.0.0`, which **hangs silently** in this sandbox — no output,
+  no listener, no error (may surface as esbuild `write EPIPE` loading
+  `vite.config.ts`, which is a red herring). Working:
+  `nohup npx vite --host 127.0.0.1 --port 5199 > /tmp/v.log 2>&1 &`
+  Verify with `netstat -ano | grep <port>` + `curl` — never trust the log.
 - `vite build` may fail with `[safe-delete] ... genie-trash ... ETIMEDOUT` in
   `prepareOutDir`/`emptyDir` — sandbox trash shim. Clears once `dist/` is emptied.
 - `vite preview` can return 502 for assets through the sandbox proxy even when the
   files are correct. Verify by reading `dist/` directly.
+
+## Open content issues (flagged, not fixed)
+
+- `sections/Testimonials.tsx` has **no `id`** (all other anchored sections do), so
+  it is unreachable from Nav/Footer — neither links it.
+- Testimonials copy in `data/site.ts` cites **Pulse / Atlas / Waveform**, which are
+  not in the project roster (Nairaflow / Kobo / Ajo / Owo). Leftover from the
+  Pulse/Atlas/Nomad/Waveform naming (still visible in `assets/covers/` filenames).
+  Case-study testimonials are correctly matched; only the standalone section is stale.
 
 ## History
 

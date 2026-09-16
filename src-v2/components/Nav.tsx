@@ -8,6 +8,7 @@ const links = [
   { id: 'approach', label: 'Approach' },
   { id: 'services', label: 'Services' },
   { id: 'about', label: 'About' },
+  { id: 'testimonials', label: 'Testimonials' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -54,7 +55,7 @@ export default function Nav() {
           <span className="text-accent">.</span>
         </Link>
 
-        <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-7 lg:flex" aria-label="Primary">
           {links.map((l) => (
             <button
               key={l.id}
@@ -75,7 +76,7 @@ export default function Nav() {
         </nav>
 
         <button
-          className="md:hidden flex flex-col gap-1.5 p-2"
+          className="flex flex-col gap-1.5 p-2 lg:hidden"
           aria-expanded={open}
           aria-label={open ? 'Close menu' : 'Open menu'}
           onClick={() => setOpen(!open)}
@@ -90,7 +91,7 @@ export default function Nav() {
       </div>
 
       {open && (
-        <nav className="border-t border-line bg-paper px-6 pt-2 pb-8 md:hidden" aria-label="Mobile">
+        <nav className="border-t border-line bg-paper px-6 pt-2 pb-8 lg:hidden" aria-label="Mobile">
           {links.map((l) => (
             <button
               key={l.id}

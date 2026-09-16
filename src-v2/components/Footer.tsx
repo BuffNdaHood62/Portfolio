@@ -32,7 +32,7 @@ export default function Footer() {
           </div>
 
           <nav className="flex flex-col gap-2.5" aria-label="Footer">
-            {['work', 'approach', 'services', 'about', 'contact'].map((id) => (
+            {['work', 'approach', 'services', 'about', 'testimonials', 'contact'].map((id) => (
               <button
                 key={id}
                 onClick={() => goTo(id)}

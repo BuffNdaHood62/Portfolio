@@ -1,24 +1,23 @@
+import type { IconName } from '../components/Icon';
+
 export const site = {
   name: 'Michael Nnamdi',
   firstName: 'Michael',
   role: 'UI/UX Designer & Creative Frontend',
   tagline: 'The design you approve is the design your users get.',
-  email: 'hello@michaelnnamdi.design',
+  email: 'michaelnnamdi04@gmail.com',
   location: 'Nigeria · working worldwide',
   availability: 'Available for Q4 2026 projects',
   intro:
     'I blend product thinking with production-grade frontend craft, so the design you approve is the design your users get. Most designers hand off mockups. I hand off working interfaces.',
   socials: [
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/' },
-    { label: 'Dribbble', href: 'https://dribbble.com/' },
-    { label: 'GitHub', href: 'https://github.com/' },
-    { label: 'Read.cv', href: 'https://read.cv/' },
-  ],
-  stats: [
-    { value: '8+', label: 'Years designing & shipping' },
-    { value: '40+', label: 'Products launched with teams' },
-    { value: '+28%', label: 'Median conversion lift across projects' },
-  ],
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'linkedin' },
+    { label: 'Dribbble', href: 'https://dribbble.com/', icon: 'dribbble' },
+    { label: 'GitHub', href: 'https://github.com/', icon: 'github' },
+    { label: 'Read.cv', href: 'https://read.cv/', icon: 'readcv' },
+    { label: 'WhatsApp', href: 'https://wa.me/2349065239603', icon: 'whatsapp' },
+  ] satisfies { label: string; href: string; icon: IconName }[],
+  stats: [{ value: '3+', label: 'years of designing & shipping' }],
 };
 
 export const process = [

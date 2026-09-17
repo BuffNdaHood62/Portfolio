@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../data/site';
+import Icon from './Icon';
 
 export default function Footer() {
   const location = useLocation();
@@ -50,8 +51,9 @@ export default function Footer() {
                 href={s.href}
                 target="_blank"
                 rel="noreferrer"
-                className="label transition-colors hover:text-ink"
+                className="label inline-flex w-fit items-center gap-2 transition-colors hover:text-ink"
               >
+                <Icon name={s.icon} className="size-4 shrink-0" />
                 {s.label}
               </a>
             ))}

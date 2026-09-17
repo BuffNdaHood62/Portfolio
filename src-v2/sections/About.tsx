@@ -20,7 +20,7 @@ export default function About() {
             <div className="space-y-6 text-base leading-relaxed text-muted md:text-lg">
               <p>
                 I&apos;m {site.name}, a product designer and creative frontend developer based in
-                Nigeria, working with teams worldwide. For 8+ years I&apos;ve designed and shipped
+                Nigeria, working with teams worldwide. For 3+ years I&apos;ve designed and shipped
                 products across fintech, infrastructure and consumer apps — always owning the work
                 from first interview to production deploy.
               </p>

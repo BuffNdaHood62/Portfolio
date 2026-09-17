@@ -13,7 +13,7 @@ export default function Approach() {
               Three steps, no theatre<span className="text-accent">.</span>
             </>
           }
-          intro="A process refined across 40+ launches — tight loops, visible progress, and deliverables you can click, not just look at."
+          intro="A process refined across years of client work — tight loops, visible progress, and deliverables you can click, not just look at."
         />
 
         <ol className="mt-16 grid gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-3">

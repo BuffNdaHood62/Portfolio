@@ -2,6 +2,7 @@ import { site } from '../data/site';
 import SectionHeading from '../components/SectionHeading';
 import Magnetic from '../components/Magnetic';
 import Reveal from '../components/Reveal';
+import Icon from '../components/Icon';
 import BookingCalendar from '../components/BookingCalendar';
 
 export default function Contact() {
@@ -28,8 +29,9 @@ export default function Contact() {
             <Magnetic className="mt-10 inline-block">
               <a
                 href={`mailto:${site.email}?subject=${encodeURIComponent('Project enquiry')}`}
-                className="inline-block rounded-full bg-ink px-9 py-4 font-mono text-[0.7rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
+                className="inline-flex items-center gap-2.5 rounded-full bg-ink px-8 py-4 font-mono text-[0.7rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
               >
+                <Icon name="mail" className="size-4 shrink-0" />
                 {site.email}
               </a>
             </Magnetic>
@@ -40,9 +42,10 @@ export default function Contact() {
                   href={s.href}
                   target="_blank"
                   rel="noreferrer"
-                  className="label transition-colors hover:text-ink"
+                  className="label inline-flex items-center gap-2 transition-colors hover:text-ink"
                 >
-                  {s.label} ↗
+                  <Icon name={s.icon} className="size-4 shrink-0" />
+                  {s.label}
                 </a>
               ))}
             </div>

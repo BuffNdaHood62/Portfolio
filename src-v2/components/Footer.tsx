@@ -32,7 +32,7 @@ export default function Footer() {
           </div>
 
           <nav className="flex flex-col gap-2.5" aria-label="Footer">
-            {['work', 'approach', 'services', 'about', 'testimonials', 'contact'].map((id) => (
+            {['approach', 'services', 'about', 'contact'].map((id) => (
               <button
                 key={id}
                 onClick={() => goTo(id)}
@@ -63,7 +63,7 @@ export default function Footer() {
             © {year} {site.name}. All rights reserved.
           </p>
           <p className="font-mono text-[0.65rem] tracking-[0.2em] uppercase">
-            Designed & built in Lagos
+            Designed & built in Nigeria
           </p>
         </div>
       </div>

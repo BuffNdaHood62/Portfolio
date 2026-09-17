@@ -1,7 +1,5 @@
-import { Link } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { site } from '../data/site';
-import { projects } from '../data/projects';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
 
@@ -9,7 +7,6 @@ const EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function Hero() {
   const reduce = useReducedMotion();
-  const featured = projects[0];
 
   return (
     <section className="flex min-h-[92vh] flex-col justify-end px-6 pt-32 pb-16 md:px-10 md:pb-24">
@@ -51,12 +48,15 @@ export default function Hero() {
             className="flex flex-wrap items-center gap-4"
           >
             <Magnetic>
-              <Link
-                to={`/case-study/${featured.slug}`}
+              <button
+                type="button"
+                onClick={() =>
+                  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
+                }
                 className="inline-block rounded-full bg-ink px-7 py-3.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
               >
-                View the work
-              </Link>
+                What I do
+              </button>
             </Magnetic>
             <Magnetic>
               <a

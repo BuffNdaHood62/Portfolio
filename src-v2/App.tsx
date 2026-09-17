@@ -5,7 +5,6 @@ import Nav from './components/Nav';
 import Footer from './components/Footer';
 import SmoothScroll from './components/SmoothScroll';
 import Home from './pages/Home';
-import CaseStudy from './pages/CaseStudy';
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -26,7 +25,6 @@ export default function App() {
       <AnimatePresence mode="wait">
         <Routes location={location} key={location.pathname}>
           <Route path="/" element={<Home />} />
-          <Route path="/case-study/:slug" element={<CaseStudy />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </AnimatePresence>

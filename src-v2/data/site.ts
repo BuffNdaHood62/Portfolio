@@ -4,7 +4,7 @@ export const site = {
   role: 'UI/UX Designer & Creative Frontend',
   tagline: 'The design you approve is the design your users get.',
   email: 'hello@michaelnnamdi.design',
-  location: 'Lagos, Nigeria · working worldwide',
+  location: 'Nigeria · working worldwide',
   availability: 'Available for Q4 2026 projects',
   intro:
     'I blend product thinking with production-grade frontend craft, so the design you approve is the design your users get. Most designers hand off mockups. I hand off working interfaces.',
@@ -59,7 +59,7 @@ export const services = [
 
 export const booking = {
   label: 'Free 30-min intro call',
-  timezone: 'WAT — Lagos (UTC+1)',
+  timezone: 'WAT — Nigeria (UTC+1)',
   daysAhead: 14,
   times: ['09:00', '10:30', '13:00', '15:00', '16:30'],
 };

@@ -1,11 +1,9 @@
 import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Hero from '../sections/Hero';
-import Work from '../sections/Work';
 import Approach from '../sections/Approach';
 import Services from '../sections/Services';
 import About from '../sections/About';
-import Testimonials from '../sections/Testimonials';
 import Contact from '../sections/Contact';
 
 export default function Home() {
@@ -23,11 +21,9 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Work />
       <Approach />
       <Services />
       <About />
-      <Testimonials />
       <Contact />
     </>
   );

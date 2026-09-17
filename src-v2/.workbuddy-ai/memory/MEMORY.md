@@ -24,6 +24,17 @@ studies, no project data and no detail pages (removed 2026-09-17).
 - **All content lives in `data/site.ts`** — the only data file. Sections are
   `Hero`, `Approach`, `Services`, `About`, `Contact` (5, in `pages/Home.tsx`).
   Edit data before JSX.
+- **`site.email` is the only place the address is written.** Nav CTA, Footer and
+  Contact all read it. Currently `michaelnnamdi04@gmail.com`.
+- **Social links carry an `icon` field**, typed by `IconName` from
+  `components/Icon.tsx`. `Icon.tsx` holds six glyphs as inline single paths
+  (no icon package) with a **per-icon `viewBox`** — simple-icons are 24×24,
+  bootstrap-icons are 16×16. Don't hand-edit the path data; re-fetch from the
+  source package. Adding a social means adding an icon name to the union too,
+  or `tsc` will reject it.
+- **`site.stats` has exactly one entry** ("3+ years of designing & shipping").
+  Hero renders it as a single baseline row, not a grid — the old 3-column grid
+  left one stat stranded. If you add stats back, revisit that layout.
 
 ## Navigation
 
@@ -51,9 +62,15 @@ studies, no project data and no detail pages (removed 2026-09-17).
   but it also means rewriting the scroll-to-section logic, so do it deliberately.
 - **`src-v2/assets/portrait.svg` is unused.** Kept in case it is wanted for an About
   photo; delete if not.
-- Stats still include "+28% median conversion lift across projects", which no longer
-  has any displayed work to substantiate it. Left as-is by author's choice.
 - No test runner or CI yet. `verify` is the current gate.
+
+## Watch for orphaned claims
+
+Numbers and names in prose drift out of sync with the data they describe. Real
+examples already caught here: "8+ years" in About survived the stat changing to
+3+; "40+ launches" in Approach survived the 40+ stat being deleted; testimonial
+attributions survived the client rename. **When you change or delete a metric,
+client or project, grep the prose for it.**
 
 ## Environment gotchas (not project bugs)
 

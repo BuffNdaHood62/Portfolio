@@ -2,25 +2,35 @@
 
 Michael Nnamdi portfolio. React 19 + Vite 6 + TypeScript + Tailwind v4, static deploy via `.verdentc.json`.
 
+**Current shape: a single-page site.** One route renders one page. There are no case
+studies, no project data and no detail pages (removed 2026-09-17).
+
 ## Non-obvious facts that cause bugs
 
 - **Source root is `src-v2/`.** There is no `src/`. `index.html` loads `/src-v2/main.tsx`.
   `tsconfig.json` includes `src-v2` only. If you add a source dir, extend `include` —
   a `tsc` run that doesn't see the files **still exits 0**, producing a false green.
-- **Router is `HashRouter`** (static host, no rewrites). Internal links must use
-  `<Link>` / `useNavigate`. Hand-written `href="#/..."` bypasses the router and is the
-  exact bug class that was fixed in Hero.tsx.
-- **Routes are data-derived.** "Next case study" uses `relatedProjects()` (relevance
-  scoring on shared type/industry/skills) — not array rotation.
+- **Router is `HashRouter`**, which makes in-page anchors a trap. `href="#services"`
+  is parsed by the router as the route `services`, so it silently falls through to
+  the catch-all, renders Home and resets scroll — the section is never reached. To
+  jump to a section use `document.getElementById(id)?.scrollIntoView(...)` in an
+  `onClick` (see `Nav.tsx`, `Hero.tsx`). Use `<Link>` for real route changes only.
 - **Design tokens** live in `src-v2/index.css` `@theme`: `paper`, `surface`, `ink`,
   `muted`, `line`, `accent`. Invented names like `text-fog` / `border-acid` do **not**
   exist and fail silently (unstyled render).
 - **Reduced motion is handled in two layers on purpose**: `useReducedMotion()` for
   framer-motion, plus a global `@media (prefers-reduced-motion)` block in `index.css`
   for CSS/compositor animation. Both are required — don't "dedupe" them.
-- **Content is data-driven**: `data/site.ts` (copy/services/testimonials),
-  `data/projects.ts` (case studies incl. `details`, `context`, `problem`, `process`,
-  `outcomes`). Edit data before JSX.
+- **All content lives in `data/site.ts`** — the only data file. Sections are
+  `Hero`, `Approach`, `Services`, `About`, `Contact` (5, in `pages/Home.tsx`).
+  Edit data before JSX.
+
+## Navigation
+
+- Nav and Footer both link exactly the four anchored sections: `approach`, `services`,
+  `about`, `contact`. Keep these in sync with the `id=` attributes in `sections/`.
+- **Nav desktop breakpoint is `md`** with `gap-8`. It was briefly `lg` while six links
+  existed; four fit at 768px comfortably. If you add links, re-check the width.
 
 ## Workflow
 
@@ -31,10 +41,18 @@ Michael Nnamdi portfolio. React 19 + Vite 6 + TypeScript + Tailwind v4, static d
 
 ## Known deferred work
 
-- **Bundle size**: ~449 KB raw / 140 KB gzip, driven by `framer-motion@13` pulling the
-  full `motion-dom` engine. App only uses `motion.*`, `useMotionValue`, `useSpring`,
-  `useReducedMotion`, `AnimatePresence`. Options: `LazyMotion` + `domAnimation`, the
-  `framer-motion/dom/mini` entry, or `React.lazy` on the CaseStudy route.
+- **Bundle size**: ~405 KB raw / 129 KB gzip. Driven by `framer-motion@13` pulling the
+  full `motion-dom` engine, though the app uses only `motion.*`, `useMotionValue`,
+  `useSpring`, `useReducedMotion`, `AnimatePresence`. Options: `LazyMotion` +
+  `domAnimation`, or the `framer-motion/dom/mini` entry.
+- **`react-router-dom` is now near-dead weight.** Every route renders Home, so the
+  router only serves `location.state.scrollTo` and `ScrollToTop`. Removing it
+  (`main.tsx`, `App.tsx`, `Nav`, `Footer`) would cut bundle size and complexity —
+  but it also means rewriting the scroll-to-section logic, so do it deliberately.
+- **`src-v2/assets/portrait.svg` is unused.** Kept in case it is wanted for an About
+  photo; delete if not.
+- Stats still include "+28% median conversion lift across projects", which no longer
+  has any displayed work to substantiate it. Left as-is by author's choice.
 - No test runner or CI yet. `verify` is the current gate.
 
 ## Environment gotchas (not project bugs)
@@ -45,26 +63,32 @@ Michael Nnamdi portfolio. React 19 + Vite 6 + TypeScript + Tailwind v4, static d
   `vite.config.ts`, which is a red herring). Working:
   `nohup npx vite --host 127.0.0.1 --port 5199 > /tmp/v.log 2>&1 &`
   Verify with `netstat -ano | grep <port>` + `curl` — never trust the log.
+  Requesting a deleted/unknown module from the dev server returns **200 with
+  `index.html`** (SPA fallback), not 404 — don't mistake that for a stale cache.
 - `vite build` may fail with `[safe-delete] ... genie-trash ... ETIMEDOUT` in
   `prepareOutDir`/`emptyDir` — sandbox trash shim. Clears once `dist/` is emptied.
 - `vite preview` can return 502 for assets through the sandbox proxy even when the
   files are correct. Verify by reading `dist/` directly.
 
-## Content single-source-of-truth rule (learned the hard way)
+## The lesson this codebase keeps teaching
 
-- **Testimonials render from `projects`, NOT from a standalone list.** Each
-  project carries its own `testimonial` in `data/projects.ts`, and
-  `sections/Testimonials.tsx` maps over `projects`. Do not reintroduce a
-  duplicate testimonial array in `site.ts` — the previous one drifted and ended
-  up attributing quotes to companies (Pulse/Atlas/Waveform) that do not exist
-  in the roster (Nairaflow/Kobo/Ajo/Owo). Fixed in `9bf621a`.
-- `data/site.ts` holds only site-wide copy (name, role, intro, stats, socials,
-  booking, process, services). Project-specific content lives in `projects.ts`.
-- **Nav breakpoint is `lg`, not `md`.** Six links (work, approach, services,
-  about, testimonials, contact) do not fit at 768px. If you add a seventh link,
-  re-check the width or shorten a label.
+Three separate defects here all had one root cause: **two things claiming to be
+authoritative**, each drifting silently.
+
+| Two sources of truth | Result |
+| --- | --- |
+| `src/` vs `src-v2/` | 1,609 LOC never type-checked |
+| `tsconfig` vs `index.html` | False-green typecheck |
+| `site.ts` testimonials vs `projects.ts` testimonials | Quotes from non-existent clients |
+
+All three were fixed by **removing the duplication**, not by syncing it. The
+codebase is now at the healthy end state: one data file, one source root, one
+config. Keep it that way — **derive, don't duplicate.**
 
 ## History
 
 - v1 (`src/`, 40 files) removed 2026-09-15; recoverable at commit `9943200`.
 - Type-safety restoration + tooling added in `8f29922`.
+- Testimonials deduplicated from `projects` in `9bf621a` (later removed entirely).
+- Case studies, `projects.ts`, Testimonials section and cover assets removed, and
+  Lagos replaced with Nigeria, in `fa1da45` (2026-09-17).

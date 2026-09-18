@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../data/site';
 import Magnetic from './Magnetic';
 
@@ -13,8 +12,6 @@ const links = [
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
-  const location = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -23,16 +20,16 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  useEffect(() => setOpen(false), [location.pathname]);
-
+  // Single-page site: every nav action is an in-page scroll. Each section
+  // carries `scroll-mt-24` so it clears the fixed header.
   const goTo = (id: string) => {
     setOpen(false);
-    // Navigation is fire-and-forget: Home reads scrollTo from location.state.
-    if (location.pathname !== '/') {
-      void navigate('/', { state: { scrollTo: id } });
-    } else {
-      document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-    }
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const scrollToTop = () => {
+    setOpen(false);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
@@ -44,14 +41,14 @@ export default function Nav() {
       }`}
     >
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4 md:px-10">
-        <Link
-          to="/"
+        <button
+          type="button"
+          onClick={scrollToTop}
           className="font-display text-lg font-semibold tracking-tight"
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
         >
           {site.firstName} Nnamdi
           <span className="text-accent">.</span>
-        </Link>
+        </button>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
           {links.map((l) => (

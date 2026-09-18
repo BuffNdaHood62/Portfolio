@@ -1,16 +1,11 @@
-import { useLocation, useNavigate } from 'react-router-dom';
 import { site } from '../data/site';
 import Icon from './Icon';
 
 export default function Footer() {
-  const location = useLocation();
-  const navigate = useNavigate();
   const year = new Date().getFullYear();
 
   const goTo = (id: string) => {
-    // Navigation is fire-and-forget: Home reads scrollTo from location.state.
-    if (location.pathname !== '/') void navigate('/', { state: { scrollTo: id } });
-    else document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   return (

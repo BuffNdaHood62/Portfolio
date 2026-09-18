@@ -43,8 +43,11 @@ export default tseslint.config(
     },
   },
   {
-    // The e2e suite runs in Node, not the browser, and prints its results to stdout.
-    files: ['tests/**/*.mjs'],
+    // Node-side tooling: the e2e suite and the brand-asset generator. Both run in
+    // Node rather than the browser, and both print to stdout. Without this block the
+    // files match no `files` pattern and ESLint lints them with zero rules — which
+    // reads as a clean pass rather than as "never checked".
+    files: ['tests/**/*.mjs', 'tools/**/*.mjs'],
     extends: [js.configs.recommended],
     languageOptions: {
       ecmaVersion: 2022,

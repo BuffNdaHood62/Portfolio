@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Michael Nnamdi">
+  <!--
+    Source of truth for the site mark. Regenerate the raster fallbacks with
+    `npm run assets` after editing this file.
+
+    The M is a stroked path rather than a <text> element on purpose: a favicon is a
+    standalone document with no @font-face, so text would fall back to whatever font
+    the viewer's OS happens to have and the mark would differ per machine.
+
+    There is deliberately no accent period here, even though the wordmark in Nav.tsx
+    ends in one. An earlier version carried the dot, and at 32px it merged into the M's
+    right leg — the gap worked out to under half a pixel at 16px, so it rendered as a
+    smudge rather than a full stop. A favicon has room for one idea. The accent still
+    appears in the share card, in the eyebrow dot and in the name's full stop.
+
+    Palette is the live @theme set — ink #1c1915, paper #faf7f2.
+  -->
+  <rect width="64" height="64" rx="14" fill="#1c1915" />
+  <path
+    d="M16 46 L16 18 L32 34 L48 18 L48 46"
+    fill="none"
+    stroke="#faf7f2"
+    stroke-width="7.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

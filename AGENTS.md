@@ -23,6 +23,8 @@ React 19 + Vite 6 + TypeScript + Tailwind v4 single-page portfolio.
 | `npm run lint` / `lint:fix` | ESLint (TS + react-hooks + jsx-a11y) |
 | `npm run format` / `format:check` | Prettier |
 | `npm run build` | `tsc -b && vite build` |
+| `npm run test:e2e` | Drive the built site in real Chrome over CDP (`node tests/run.mjs`) |
+| `npm run assets` | Regenerate the raster brand assets from `public/favicon.svg` |
 | `npm run verify` | typecheck + lint + build — **run before handoff** |
 
 ## Conventions
@@ -38,8 +40,25 @@ React 19 + Vite 6 + TypeScript + Tailwind v4 single-page portfolio.
 - Decorative motion wrappers: prefer the existing `Reveal` / `LineMask` / `Magnetic`
   components over one-off animation code.
 
+## Brand assets
+
+- `public/favicon.svg` is the **source of truth** for the mark. Edit it, then run
+  `npm run assets` to rebuild `og-image.png`, `favicon-32.png` and
+  `apple-touch-icon.png`. Never hand-edit the PNGs — they are generated.
+- The mark is a stroked `<path>`, not a `<text>` element, because a favicon is a
+  standalone document with no `@font-face`: text would render in whatever font the
+  viewer's machine happens to have.
+- It carries no accent dot on purpose. The dot used to be there and merged into the
+  M's right leg at 32px — the gap is under half a pixel at 16px.
+- `tests/suites/meta.mjs` fetches every asset the `<head>` declares and checks the
+  content type, because the static host answers missing files with `index.html` at
+  HTTP 200 — a status-only check reports success for a file that is not there.
+
 ## Publishing
 
 - `.verdentc.json` defines the build contract: `npm ci && npm run build` → `dist`.
 - Run `npm run verify` before handing off. A build that type-checks nothing can
   otherwise reach production unnoticed.
+- **Pending: `og:image`, `og:url` and `canonical` are root-relative.** Crawlers want
+  absolute URLs and there is no canonical domain yet. Once there is one, prefix all
+  three with the origin — the comment in `index.html` marks the spot.

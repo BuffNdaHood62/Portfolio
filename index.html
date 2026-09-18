@@ -3,18 +3,49 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Michael Nnamdi — UI/UX Designer & Creative Frontend</title>
+    <title>Michael Nnamdi — UI/UX Designer &amp; Creative Frontend</title>
     <meta
       name="description"
       content="Michael Nnamdi is a UI/UX designer who ships. Product design, design systems and creative frontend — design that feels inevitable, and ships."
     />
-    <meta property="og:title" content="Michael Nnamdi — UI/UX Designer & Creative Frontend" />
+
+    <!--
+      Sharing metadata.
+
+      `og:image` and `og:url` are specified as absolute URLs, and crawlers do not
+      reliably resolve relative ones. There is no canonical domain yet, so the image
+      is root-relative (matching the `/assets/...` paths Vite already emits). When the
+      site goes live, prefix it with the origin, add `og:url`, and add a
+      <link rel="canonical"> — all three need the same origin.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Michael Nnamdi" />
+    <meta property="og:title" content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend" />
     <meta
       property="og:description"
       content="Design that feels inevitable — and ships. Product design, design systems and creative frontend with production-grade craft."
     />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend" />
+    <meta
+      name="twitter:description"
+      content="Design that feels inevitable — and ships. Product design, design systems and creative frontend with production-grade craft."
+    />
+    <meta name="twitter:image" content="/og-image.png" />
+
     <meta name="theme-color" content="#faf7f2" />
+
+    <!-- Icons. `public/favicon.svg` is the source; regenerate rasters with `npm run assets`. -->
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
   </head>
   <body>
     <div id="root"></div>

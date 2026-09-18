@@ -75,8 +75,8 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 
 ## Known deferred work
 
-- **Bundle size**: ~319 KB raw / 103 KB gzip, down from 410 KB / 132 KB before this
-  session's work. Already optimised via `LazyMotion` + `domAnimation` (see the
+- **Bundle size**: ~319.5 KB raw / 103.5 KB gzip, down from 410 KB / 132 KB before
+  this session's work. Already optimised via `LazyMotion` + `domAnimation` (see the
   framer-motion bullet above). What remains is mostly React itself plus the
   `motion-dom` core. The next real lever is dropping `framer-motion` for CSS
   animations plus a small spring for `Magnetic` — a rewrite, not a tweak.
@@ -85,33 +85,36 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **Stale build dirs are stranded in the project root** (`dist.stale`, `dist.prev`,
   `dist.keep3`, `dist.keep4`, `dist.keep5`) — created as sandbox workarounds and not
   deletable from inside it. Gitignored and verified harmless; remove by hand.
-- **`booking.daysAhead: 14` in `data/site.ts` is dead and misleading.** Zero
-  references anywhere; `BookingCalendar` hardcodes `while (list.length < 8)` — 8
-  *weekdays*, spanning ~10–12 calendar days. So the data claims 14 and nothing reads
-  it. Same orphaned-claim class as the old testimonials and the "40+ launches" stat.
-- **Two of the eight bookable days render with all five slots disabled, and there is
-  no empty state.** `isSlotBooked` is `((dayIndex + 2) * (slotIndex + 3)) % 5 === 0`,
-  so any `dayIndex ≡ 3 (mod 5)` is fully booked. The call site passes
-  `day.dayIndex + activeDay * 3`, but `dayIndex` is assigned `list.length` at push
-  time, so **`day.dayIndex === activeDay` always** — the expression is really
-  `activeDay * 4`. That makes **days 3 and 8** (indices 2 and 7) the dead ones; under
-  a plain `day.dayIndex` it would be day 4 instead. The arithmetic is confusing but is
-  not the real defect — the defect is that the UI prints the heading "Available slots"
-  above five struck-through, non-clickable buttons with no explanation and no route
-  forward. **Needs an empty state.** Changing the formula also changes which days look
-  free, so decide the intent before touching it.
-- **Stricter TS flags: one is free, one is not.** `exactOptionalPropertyTypes` passes
-  with **zero** errors today — enable it. `noUncheckedIndexedAccess` reports exactly
-  **4** errors, all in `BookingCalendar.tsx` (`'day' is possibly 'undefined'` at lines
-  41, 76 ×2, 125). None are runtime bugs (`activeDay` is only ever set from
-  `days.map`, and `days` is always length 8), but clearing them needs either a
-  non-null assertion or a `[DaySlot, ...DaySlot[]]` tuple return type — and this
-  codebase currently has **zero** `!`, `any`, `@ts-ignore` or `eslint-disable`. That
-  unbroken record is worth more than the flag; decide deliberately.
+- **`booking.daysAhead` was deleted** (2026-09-18). It claimed 14, was referenced
+  nowhere, and the calendar hardcoded `while (list.length < 8)`. That count now lives
+  as a named `DAYS_SHOWN` constant in `BookingCalendar.tsx` — deliberately *not* back
+  in `data/site.ts`, because nothing reads it from there. Same orphaned-claim class as
+  the old testimonials and the "40+ launches" stat.
+- **The calendar can no longer present a day with nothing left to book** (fixed
+  2026-09-18). `isSlotBooked` was `((dayIndex + 2) * (slotIndex + 3)) % 5 === 0`, so
+  every `dayIndex ≡ 3 (mod 5)` took *all five* slots. Two of the eight days rendered
+  five struck-through, non-clickable buttons under an "Available slots" heading, with
+  no explanation and no route forward — and since the availability is invented anyway,
+  a sold-out day could only turn away an enquiry. Now the raw pattern (`looksTaken`)
+  is capped by `MAX_BOOKED_PER_DAY = 2`, so every day keeps at least three slots free.
+  Verified in the real DOM: **4,4,4,3,4,4,4,4** bookable across the eight days.
+  - The call site also passed `day.dayIndex + activeDay * 3`, which was really
+    `activeDay * 4`: `dayIndex` is assigned `list.length` at push time, so both terms
+    were the same number and the expression only *looked* like it combined two
+    indices. It is now plain `day.dayIndex`.
+  - An empty state exists as a safety net. With the cap it should be unreachable; it
+    is there so a day with nothing left says so rather than printing "Available slots"
+    above dead buttons.
+- **`exactOptionalPropertyTypes` is on** (added 2026-09-18) — it passed with zero
+  errors, so it is pure hardening. `noUncheckedIndexedAccess` is deliberately **off**:
+  it reports 4 errors in `BookingCalendar.tsx` (`'day' is possibly 'undefined'`) and
+  clearing them would need a non-null assertion. This codebase has **zero** `!`, `any`,
+  `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
+  If it is ever turned on, fix it structurally, not with an assertion.
 - **No test runner or CI.** `verify` is the only gate, and nothing runs it
   automatically (no `.github/`, no remote configured). Throwaway CDP harnesses
-  (`cdp-test.mjs`, `cdp-shot.mjs`, `cdp-anim-check.mjs`) live in the temp dir — see
-  environment notes. Worth committing as a real suite.
+  (`cdp-test.mjs`, `cdp-shot.mjs`, `cdp-anim-check.mjs`, `cdp-booking.mjs`) live in the
+  temp dir — see environment notes. Worth committing as a real suite.
 
 ## Watch for orphaned claims
 
@@ -176,10 +179,15 @@ client or project, grep the prose for it.**
   headless clamps to a **~500px minimum width**, so a 390px shot is misleading.
 - **A screenshot can't prove a click works.** For behaviour, drive Chrome over CDP
   with Node 22's global `WebSocket` (no deps) and assert `scrollY` /
-  `getBoundingClientRect().top`. Two harness traps that both *looked* like app bugs:
+  `getBoundingClientRect().top`. Three harness traps that all *looked* like app bugs:
   never `sleep` a fixed time waiting for mount (Vite cold-transforms on first request,
-  mount ranged 1–10s → phantom `NOT_FOUND`s), and always await `document.fonts.ready`
-  first (webfonts shift text metrics; a target computed pre-swap drifts ~21px).
+  mount ranged 1–10s → phantom `NOT_FOUND`s); always await `document.fonts.ready`
+  first (webfonts shift text metrics; a target computed pre-swap drifts ~21px); and
+  **identify repeated elements structurally, not by index or class** — the booking
+  harness tells day buttons from slot buttons by "contains two `<span>`s", because
+  both carry `aria-pressed` and index-based selection breaks the moment layout
+  changes. Run rendering checks against the **built output** behind a static server;
+  a cold dev server plus a first Chrome launch can exceed the mount timeout.
 
 ## The lesson this codebase keeps teaching
 
@@ -209,3 +217,6 @@ so read the markup instead of assuming the previous fix transfers.
 - Hero stat row realigned to `items-center` in `98a7da6` (2026-09-18).
 - `react-router-dom` removed in `0303cd2`; Tailwind scan fixes in `57a43e3`;
   About stat row realigned in `d491e18` (all 2026-09-18).
+- framer-motion switched to `m.*` + `LazyMotion(domAnimation)` in `80e1489`; audit
+  notes in `86e2395`; booking availability capped, empty state added, `daysAhead`
+  deleted and `exactOptionalPropertyTypes` enabled in `8f13000` (all 2026-09-18).

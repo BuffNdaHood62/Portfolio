@@ -1,5 +1,5 @@
 import { useRef, type ReactNode, type MouseEvent } from 'react';
-import { motion, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
+import { m, useMotionValue, useSpring, useReducedMotion } from 'framer-motion';
 
 interface MagneticProps {
   children: ReactNode;
@@ -28,7 +28,7 @@ export default function Magnetic({ children, className, strength = 0.25 }: Magne
   };
 
   return (
-    <motion.div
+    <m.div
       ref={ref}
       onMouseMove={onMove}
       onMouseLeave={onLeave}
@@ -36,6 +36,6 @@ export default function Magnetic({ children, className, strength = 0.25 }: Magne
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }

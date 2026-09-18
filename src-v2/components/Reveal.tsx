@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 
 const EASE = [0.22, 1, 0.36, 1] as const;
 
@@ -14,7 +14,7 @@ export default function Reveal({ children, className, delay = 0, y = 28 }: Revea
   const reduce = useReducedMotion();
 
   return (
-    <motion.div
+    <m.div
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
@@ -22,7 +22,7 @@ export default function Reveal({ children, className, delay = 0, y = 28 }: Revea
       className={className}
     >
       {children}
-    </motion.div>
+    </m.div>
   );
 }
 
@@ -38,14 +38,14 @@ export function LineMask({ children, delay = 0, className }: LineMaskProps) {
 
   return (
     <span className={`block overflow-hidden ${className ?? ''}`}>
-      <motion.span
+      <m.span
         className="block will-change-transform"
         initial={reduce ? false : { y: '110%' }}
         animate={{ y: 0 }}
         transition={{ duration: 1, delay, ease: EASE }}
       >
         {children}
-      </motion.span>
+      </m.span>
     </span>
   );
 }

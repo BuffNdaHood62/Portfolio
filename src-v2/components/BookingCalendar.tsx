@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { motion } from 'framer-motion';
+import { m } from 'framer-motion';
 import { booking, isSlotBooked, site } from '../data/site';
 
 interface DaySlot {
@@ -63,7 +63,7 @@ export default function BookingCalendar() {
       </div>
 
       {requested ? (
-        <motion.div
+        <m.div
           key="confirmed"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
@@ -88,9 +88,9 @@ export default function BookingCalendar() {
           >
             ← Pick another slot
           </button>
-        </motion.div>
+        </m.div>
       ) : (
-        <motion.div
+        <m.div
           key="picker"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -146,7 +146,7 @@ export default function BookingCalendar() {
             Video call, no strings attached. We&apos;ll talk about your project, timeline and
             whether I&apos;m the right fit — you&apos;ll leave with a clear next step either way.
           </p>
-        </motion.div>
+        </m.div>
       )}
     </div>
   );

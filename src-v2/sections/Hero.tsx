@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion';
+import { m, useReducedMotion } from 'framer-motion';
 import { site } from '../data/site';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
@@ -11,7 +11,7 @@ export default function Hero() {
   return (
     <section className="flex min-h-[92vh] flex-col justify-end px-6 pt-32 pb-16 md:px-10 md:pb-24">
       <div className="mx-auto w-full max-w-6xl">
-        <motion.p
+        <m.p
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.1 }}
@@ -19,7 +19,7 @@ export default function Hero() {
         >
           <span className="inline-block size-1.5 rounded-full bg-accent animate-pulse-dot" />
           {site.availability}
-        </motion.p>
+        </m.p>
 
         <h1 className="mt-8 font-display text-[clamp(2.75rem,8vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.02em]">
           <LineMask delay={0.15}>Design that feels</LineMask>
@@ -32,16 +32,16 @@ export default function Hero() {
         </h1>
 
         <div className="mt-12 flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
-          <motion.p
+          <m.p
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.6, ease: EASE }}
             className="max-w-md text-base leading-relaxed text-muted"
           >
             {site.intro}
-          </motion.p>
+          </m.p>
 
-          <motion.div
+          <m.div
             initial={reduce ? false : { opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, delay: 0.72, ease: EASE }}
@@ -66,10 +66,10 @@ export default function Hero() {
                 Get in touch
               </a>
             </Magnetic>
-          </motion.div>
+          </m.div>
         </div>
 
-        <motion.dl
+        <m.dl
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.9 }}
@@ -83,7 +83,7 @@ export default function Hero() {
               </dd>
             </div>
           ))}
-        </motion.dl>
+        </m.dl>
       </div>
     </section>
   );

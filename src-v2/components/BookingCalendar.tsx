@@ -9,13 +9,16 @@ interface DaySlot {
   weekday: string;
 }
 
+/** How many bookable weekdays the picker offers. */
+const DAYS_SHOWN = 8;
+
 /** Availability calendar for booking an intro call. Confirmation happens via prefilled email. */
 export default function BookingCalendar() {
   const days = useMemo<DaySlot[]>(() => {
     const list: DaySlot[] = [];
     const d = new Date();
     d.setDate(d.getDate() + 1);
-    while (list.length < 8) {
+    while (list.length < DAYS_SHOWN) {
       const dow = d.getDay();
       if (dow !== 0 && dow !== 6) {
         list.push({
@@ -35,6 +38,17 @@ export default function BookingCalendar() {
   const [requested, setRequested] = useState(false);
 
   const day = days[activeDay];
+
+  // Derived once per selected day rather than recomputed inside the map. Note the
+  // argument is plain `day.dayIndex`: the old `day.dayIndex + activeDay * 3` was
+  // really `activeDay * 4`, because `dayIndex` is assigned `list.length` at push
+  // time — so both terms were the same number, and the arithmetic read as though
+  // it combined two different indices.
+  const slots = booking.times.map((time, slotIndex) => ({
+    time,
+    booked: isSlotBooked(day.dayIndex, slotIndex),
+  }));
+  const hasAvailability = slots.some((slot) => !slot.booked);
 
   const request = (slot: string) => {
     setPickedSlot(slot);
@@ -120,28 +134,34 @@ export default function BookingCalendar() {
           </div>
 
           <p className="label mt-6">Available slots</p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {booking.times.map((t, si) => {
-              const booked = isSlotBooked(day.dayIndex + activeDay * 3, si);
-              return (
+          {hasAvailability ? (
+            <div className="mt-3 flex flex-wrap gap-2">
+              {slots.map(({ time, booked }) => (
                 <button
-                  key={t}
+                  key={time}
                   disabled={booked}
-                  onClick={() => request(t)}
-                  aria-pressed={pickedSlot === t}
+                  onClick={() => request(time)}
+                  aria-pressed={pickedSlot === time}
                   className={`rounded-md border px-4 py-2.5 font-mono text-xs tracking-[0.15em] uppercase transition-colors ${
                     booked
                       ? 'cursor-not-allowed border-line/60 text-muted/50 line-through'
-                      : pickedSlot === t
+                      : pickedSlot === time
                         ? 'border-accent bg-accent text-paper'
                         : 'border-line hover:border-accent hover:text-accent'
                   }`}
                 >
-                  {t}
+                  {time}
                 </button>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          ) : (
+            // Safety net. `isSlotBooked` caps bookings per day, so this should be
+            // unreachable — but a day with nothing left has to say so, rather than
+            // print "Available slots" above a row of dead buttons.
+            <p className="mt-3 rounded-md border border-line bg-surface px-4 py-3 text-sm leading-relaxed text-muted">
+              Every slot on this day is taken. Pick another day above.
+            </p>
+          )}
           <p className="mt-5 text-xs leading-relaxed text-muted">
             Video call, no strings attached. We&apos;ll talk about your project, timeline and
             whether I&apos;m the right fit — you&apos;ll leave with a clear next step either way.

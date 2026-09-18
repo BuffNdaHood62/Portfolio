@@ -59,11 +59,30 @@ export const services = [
 export const booking = {
   label: 'Free 30-min intro call',
   timezone: 'WAT — Nigeria (UTC+1)',
-  daysAhead: 14,
   times: ['09:00', '10:30', '13:00', '15:00', '16:30'],
 };
 
-/** Deterministic pseudo-availability so the calendar looks real without a backend. */
+/** How many of a single day's slots the fabricated pattern may take. */
+const MAX_BOOKED_PER_DAY = 2;
+
+/** The raw pattern, before the per-day cap is applied. */
+const looksTaken = (dayIndex: number, slotIndex: number) =>
+  ((dayIndex + 2) * (slotIndex + 3)) % 5 === 0;
+
+/**
+ * Deterministic pseudo-availability so the calendar looks real without a backend.
+ *
+ * The cap is the point. The raw pattern takes *every* slot whenever
+ * `dayIndex ≡ 3 (mod 5)`, which rendered whole days with nothing left to book —
+ * five struck-through buttons under an "Available slots" heading, and no way
+ * forward. The availability is invented anyway, so a sold-out day could only
+ * ever turn away an enquiry.
+ */
 export function isSlotBooked(dayIndex: number, slotIndex: number) {
-  return ((dayIndex + 2) * (slotIndex + 3)) % 5 === 0;
+  if (!looksTaken(dayIndex, slotIndex)) return false;
+  let takenEarlier = 0;
+  for (let earlier = 0; earlier < slotIndex; earlier += 1) {
+    if (looksTaken(dayIndex, earlier)) takenEarlier += 1;
+  }
+  return takenEarlier < MAX_BOOKED_PER_DAY;
 }

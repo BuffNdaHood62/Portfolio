@@ -43,6 +43,25 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **All content lives in `data/site.ts`** — the only data file. Sections are
   `Hero`, `Approach`, `Services`, `About`, `Contact` (5, in `pages/Home.tsx`).
   Edit data before JSX.
+- **`data/site.ts` also exports `sections` and three prose constants — use them.**
+  `sections` is the four anchored sections as `{ id, label }`, rendered by **both** `Nav`
+  and `Footer`. Before it existed each held its own copy and they had *already diverged*:
+  Nav printed labels ("Approach"), Footer printed raw ids ("approach"). The `label`
+  class's `text-transform: uppercase` made them look identical, so only `textContent`
+  disagreed — and renaming a section id would have changed what the footer visibly said.
+  `country`, `bookingWindow` and `yearsExperience` are the facts prose quotes;
+  `site.location`, `site.availability` and `site.stats[0].value` are built from them.
+  **Interpolate them — never restate the value in copy.** About.tsx hardcoded
+  "For 3+ years" beside a stat saying 3+, and it had drifted once already ("8+ years"
+  survived the stat changing). `tests/suites/consistency.mjs` enforces this, and
+  `noUnusedLocals` catches the common case by flagging the import you stopped using.
+- **Derive list positions; don't store them.** `process` carried its own
+  `index: '01'`, so reordering the array would have printed 02, 01, 03. Services already
+  derived its numbering; Approach does now too.
+- **The page needs exactly one `<main>`.** It had none until 2026-09-18: `App.tsx`
+  rendered `Nav`, `Home`, `Footer` in a plain `div`, so "skip to main content" had
+  nowhere to land. Nav and Footer were landmarks from the start. jsx-a11y does not
+  require a main landmark, which is why nothing caught it.
 - **`site.email` is the only place the address is written.** Nav CTA, Footer and
   Contact all read it. Currently `michaelnnamdi04@gmail.com`.
 - **Social links carry an `icon` field**, typed by `IconName` from
@@ -139,6 +158,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **`src-v2/assets/portrait.svg` is unused and stale.** Kept in case it is wanted for an
   About photo; delete if not. See the brand-assets section — it is *not* usable as a
   brand source.
+- **`site.tagline` is declared and never read** (found 2026-09-18). It reads "The design
+  you approve is the design your users get." — the same sentence already opens
+  `site.intro`, and `index.html` carries its own `description` and `og:description`. So
+  it is dead *and* redundant. Left in place because deleting authored copy is the user's
+  call, not a cleanup. Same orphaned-field class as `booking.daysAhead`, which was
+  deleted.
 - **Stale build dirs are stranded in the project root** (`dist.stale`, `dist.prev`,
   `dist.keep3`, `dist.keep4`, `dist.keep5`) — created as sandbox workarounds and not
   deletable from inside it. Gitignored and verified harmless; remove by hand.
@@ -168,12 +193,14 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   clearing them would need a non-null assertion. This codebase has **zero** `!`, `any`,
   `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
   If it is ever turned on, fix it structurally, not with an assertion.
-- **Behaviour is covered by `npm run test:e2e`** — 49 assertions in five suites
-  (`tests/suites/{scroll,nav,booking,a11y,meta}.mjs`), driving real Chrome over CDP with
-  no dependencies. It serves `dist` itself, so build first; Chrome must be installed
-  (`CHROME_PATH` overrides discovery). Full gate is
+- **Behaviour is covered by `npm run test:e2e`** — 60 assertions in six suites
+  (`tests/suites/{scroll,nav,booking,a11y,meta,consistency}.mjs`), driving real Chrome
+  over CDP with no dependencies. It serves `dist` itself, so build first; Chrome must be
+  installed (`CHROME_PATH` overrides discovery). Full gate is
   `npm run verify && npm run test:e2e`. **There is still no CI**: no `.github/` and no
   git remote, so a workflow file would be inert until a remote is added.
+  `consistency.mjs` hardcodes no expected strings — it derives a value from one rendered
+  element and asserts another agrees, so it cannot rot when the copy changes.
 
 ## Watch for orphaned claims
 
@@ -182,6 +209,16 @@ examples already caught here: "8+ years" in About survived the stat changing to
 3+; "40+ launches" in Approach survived the 40+ stat being deleted; testimonial
 attributions survived the client rename. **When you change or delete a metric,
 client or project, grep the prose for it.**
+
+The durable fix, applied 2026-09-18: the facts prose quotes are now named constants in
+`data/site.ts` (`country`, `bookingWindow`, `yearsExperience`) and interpolated, so
+there is no second copy to drift. Grepping is still the right instinct for prose that
+is *not* derived — and `tests/suites/consistency.mjs` now asserts the derived ones agree.
+
+**`AGENTS.md` is part of this set.** It is a source of truth an agent reads first, and it
+had drifted further than the code: it still described `HashRouter`, `<Link>`/`useNavigate`
+and `data/projects.ts` weeks after all three were removed. When architecture changes,
+update it in the same commit.
 
 ## Environment gotchas (not project bugs)
 
@@ -276,8 +313,26 @@ client or project, grep the prose for it.**
   passes against a blank document. This is what produced a share card with every element
   present and every word missing. Send `Page.navigate` and poll
   `location.href === target`: **`readyState` cannot distinguish the new document from
-  the old one.** All three are fixed in `tests/harness.mjs` and mirrored into the
+  the old one.**   All three are fixed in `tests/harness.mjs` and mirrored into the
   `headless-chrome-verify` skill's scripts.
+- **A Chrome auto-update mid-session looks exactly like a regression in the harness.**
+  Observed 2026-09-18: launches stopped publishing `DevToolsActivePort` and a manual
+  launch produced a **GUI window** (`chrome://newtab/`) that never exited. Chrome had
+  auto-updated to **153.0.8010.48** while work was in progress — the updater's log showed
+  `Failed to open named pipe server process ... Access is denied`. Once the update
+  settled, startup measured **794ms** (5.8s / 1.2s / 0.79s across three runs). Nothing was
+  wrong with the code. Both plausible causes were ruled out with evidence rather than
+  reasoning: `--headless=new`, `--headless` and `--headless=old` all work post-update, and
+  `--remote-debugging-port=0` still publishes the port file (an *explicit* port makes
+  Chrome 153 skip the file entirely and serve the endpoint anyway).
+- **`child.kill()` does not kill Chrome's children.** Chrome spawns a tree — renderers,
+  GPU, crashpad — that survives its parent on Windows: 9 orphans from one hung launch, 20
+  live `chrome.exe` at one point. `tests/harness.mjs` now uses `taskkill /F /T`. Verified
+  stable: a full six-suite run leaves the process count unchanged (9 → 9).
+- **Never `taskkill /IM chrome.exe` to clean up.** The user's real browser session runs
+  on the default profile and is indistinguishable in `tasklist`. Filter on the command
+  line (`--user-data-dir=<temp>`) and kill by PID — **19 of the 20** processes above were
+  the user's own browser.
 - **A webfont that fails to load looks like a deliberate design.** With
   `font-display: block` the glyphs stay invisible until the font arrives, so every
   element keeps its full box and *only the text* is missing — it reads as a minimalist
@@ -306,6 +361,9 @@ authoritative**, each drifting silently.
 | Auto-detected CSS sources vs what is actually source | Three separate dead-CSS leaks; fixed by declaring sources instead |
 | Assumed `src-v2/index.html` vs the real root `index.html` | Read the wrong path for a whole audit; it returns nothing rather than an error |
 | Hand-maintained PNGs vs the SVG that defines the mark | Why `tools/generate-brand-assets.mjs` is committed, not run once |
+| "For 3+ years" in the About prose vs the `3+` stat | Drifted once already — "8+ years" survived the stat changing to 3+ |
+| Nav's section list vs Footer's section list | Nav printed labels, Footer printed raw ids; `text-transform: uppercase` hid it |
+| `AGENTS.md` vs the real architecture | Documented `HashRouter` and `data/projects.ts` long after both were deleted |
 
 All were fixed by **removing the duplication**, not by syncing it. Keep it that way —
 **derive, don't duplicate.** And a related rule: **the same visual symptom can have a
@@ -332,3 +390,6 @@ so read the markup instead of assuming the previous fix transfers.
 - CDP harness launch-path bugs fixed (EBUSY on `DevToolsActivePort`, discarded stderr,
   attach-without-navigate) in `0eee7f7`; favicon + share card, `npm run assets`, the
   `meta` suite and the sharing metadata in `8a7c5a5` (both 2026-09-18).
+- Prose facts derived instead of restated (`sections`, `country`, `bookingWindow`,
+  `yearsExperience`), the missing `main` landmark added, and the `consistency` suite in
+  `ca1517a`; the harness now kills Chrome's process tree in `835a23b` (both 2026-09-18).

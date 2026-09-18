@@ -4,15 +4,20 @@ React 19 + Vite 6 + TypeScript + Tailwind v4 single-page portfolio.
 
 ## Layout
 
-- Source lives in **`src-v2/`** and is loaded by `index.html` → `/src-v2/main.tsx`.
-  There is no `src/` directory; do not recreate one.
+- Source lives in **`src-v2/`** and is loaded by **`index.html` at the repo root** →
+  `/src-v2/main.tsx`. There is no `src/` directory; do not recreate one, and do not go
+  looking for `src-v2/index.html` — every `<head>` change belongs in the root file.
 - `tsconfig.json` covers `src-v2` only. If you add a top-level source directory,
   add it to `include` — a `tsc` run that does not see your files still exits 0.
-- Routing is **`HashRouter`** (static hosting; no server rewrites). Internal links
-  must use `<Link>`/`useNavigate`. Never hand-write `href="#/..."` — derive routes
-  from `data/projects.ts` so a slug rename cannot silently break a CTA.
-- Content is data-driven: `data/site.ts` (copy, services, testimonials) and
-  `data/projects.ts` (case studies). Prefer editing data over JSX.
+- **There is no router.** The app is one page: `App.tsx` renders `Nav`, `main > Home`
+  and `Footer`. In-page navigation is `scrollIntoView` from the shared `sections` list;
+  each section carries `scroll-mt-24` to clear the fixed header. Do not reintroduce
+  `react-router` without a second page — a `HashRouter` used to be here, and it made
+  `href="#services"` parse as a *route* named `services` instead of scrolling.
+- Content is data-driven: **`data/site.ts` is the only data file.** Prefer editing data
+  over JSX. It also exports `sections` (the four anchored sections, rendered by both
+  `Nav` and `Footer`) and the prose constants `country`, `bookingWindow` and
+  `yearsExperience` — interpolate those rather than restating the value in copy.
 
 ## Commands
 
@@ -39,6 +44,13 @@ React 19 + Vite 6 + TypeScript + Tailwind v4 single-page portfolio.
   `border-acid` — they do not exist and will silently render unstyled.
 - Decorative motion wrappers: prefer the existing `Reveal` / `LineMask` / `Magnetic`
   components over one-off animation code.
+- **Never restate a fact that lives in `data/site.ts`.** Interpolate it. A hardcoded
+  "For 3+ years" beside a stat saying 3+ is how this codebase has repeatedly drifted:
+  the same bug shipped once already as "8+ years". `tests/suites/consistency.mjs`
+  enforces it, and `noUnusedLocals` catches the common case by flagging the import you
+  stopped using.
+- **Derive list positions; don't store them.** `process` used to carry its own
+  `index: '01'`, so reordering the array would have printed 02, 01, 03.
 
 ## Brand assets
 

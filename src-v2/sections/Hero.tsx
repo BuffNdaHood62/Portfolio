@@ -73,12 +73,12 @@ export default function Hero() {
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.9 }}
-          className="mt-16 flex flex-wrap items-baseline gap-x-4 gap-y-2 border-t border-line pt-8"
+          className="mt-16 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-line pt-8"
         >
           {site.stats.map((s) => (
-            <div key={s.label} className="flex flex-wrap items-baseline gap-x-3">
+            <div key={s.label} className="flex items-center gap-x-2.5">
               <dt className="order-2 text-sm text-muted">{s.label}</dt>
-              <dd className="order-1 font-display text-3xl font-medium tracking-tight md:text-4xl">
+              <dd className="order-1 font-display text-3xl font-medium leading-none tracking-tight md:text-4xl">
                 {s.value}
               </dd>
             </div>

@@ -65,23 +65,40 @@ export async function launch({ url, reducedMotion = false, width = 1280, height 
   if (process.platform === 'linux') args.push('--no-sandbox');
   args.push(url);
 
-  const chrome = spawn(findChrome(), args, { stdio: 'ignore' });
+  const chrome = spawn(findChrome(), args, { stdio: ['ignore', 'ignore', 'pipe'] });
+
+  // Keep Chrome's stderr. Discarding it made every launch failure look identical —
+  // "port never appeared" — when the actual cause (a locked profile, a bad flag, a
+  // missing shared library) was sitting in the output we were throwing away.
+  let chromeStderr = '';
+  chrome.stderr?.on('data', (chunk) => {
+    chromeStderr += chunk.toString();
+  });
 
   const portFile = join(profile, 'DevToolsActivePort');
   let port = null;
-  for (let i = 0; i < 120; i++) {
-    if (existsSync(portFile)) {
+  for (let i = 0; i < 300; i++) {
+    // Chrome creates this file and writes it in place. On Windows the read can land
+    // mid-write and fail with EBUSY/EPERM, which is not the same as the file being
+    // absent — an unguarded readFileSync here threw straight out of launch() and
+    // surfaced as a bogus "Chrome never reported a port". Retry either way.
+    try {
       const line = readFileSync(portFile, 'utf8').split('\n')[0].trim();
       if (line) {
         port = Number(line);
         break;
       }
+    } catch {
+      /* not written yet, or locked mid-write */
     }
     await sleep(100);
   }
   if (!port) {
     chrome.kill();
-    throw new Error('Chrome never reported a DevTools port');
+    throw new Error(
+      'Chrome never reported a DevTools port' +
+        (chromeStderr ? `\nChrome said:\n${chromeStderr.trim()}` : ''),
+    );
   }
 
   let target = null;
@@ -170,9 +187,19 @@ export async function launch({ url, reducedMotion = false, width = 1280, height 
 
   await send('Runtime.enable');
   await send('Page.enable');
-  // Wait for something the app itself renders — never for a bare readyState, which
-  // is satisfied long before the framework mounts.
-  await waitFor('document.readyState === "complete"', 'the document');
+  // Attach, then navigate explicitly. Chrome is handed the URL on its command line
+  // too, but *which* target it creates first is a race: the harness could attach to a
+  // pre-navigation target that is already `readyState === "complete"`, then measure a
+  // blank document and report success. That is how a share card rendered with no text
+  // in it — every element present, every glyph missing, and nothing complained.
+  // Comparing `location.href` is what proves the navigation actually committed;
+  // readyState alone cannot distinguish the new document from the old one.
+  const targetUrl = new URL(url).href;
+  await send('Page.navigate', { url: targetUrl });
+  await waitFor(
+    `location.href === ${JSON.stringify(targetUrl)} && document.readyState === 'complete'`,
+    `navigation to ${targetUrl}`,
+  );
   // Webfonts change text metrics; measuring before the swap drifts by ~20px.
   await evaluate('document.fonts.ready.then(() => true)');
   await sleep(250);

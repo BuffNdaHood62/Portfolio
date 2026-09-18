@@ -31,6 +31,7 @@ export default function Footer() {
             {['approach', 'services', 'about', 'contact'].map((id) => (
               <button
                 key={id}
+                type="button"
                 onClick={() => goTo(id)}
                 className="label text-left transition-colors hover:text-ink"
               >

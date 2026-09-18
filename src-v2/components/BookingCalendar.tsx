@@ -94,6 +94,7 @@ export default function BookingCalendar() {
             hours with a video-call link.
           </p>
           <button
+            type="button"
             onClick={() => {
               setRequested(false);
               setPickedSlot(null);
@@ -115,6 +116,7 @@ export default function BookingCalendar() {
             {days.map((d, i) => (
               <button
                 key={d.label}
+                type="button"
                 onClick={() => setActiveDay(i)}
                 aria-pressed={activeDay === i}
                 className={`rounded-md border px-2 py-3 text-center transition-colors ${
@@ -139,6 +141,7 @@ export default function BookingCalendar() {
               {slots.map(({ time, booked }) => (
                 <button
                   key={time}
+                  type="button"
                   disabled={booked}
                   onClick={() => request(time)}
                   aria-pressed={pickedSlot === time}

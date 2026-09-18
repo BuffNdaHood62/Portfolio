@@ -20,6 +20,32 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
+  // Escape closes the mobile menu. Without this the only ways out are the toggle and
+  // picking a link, which is not what a keyboard user expects from a menu.
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [open]);
+
+  // The toggle is `md:hidden`, so once the viewport crosses the desktop breakpoint the
+  // menu can no longer be dismissed by hand: `open` would stay true forever, leaving
+  // the header stuck with its blurred background and the mobile nav in the DOM. Match
+  // Tailwind's own breakpoint (`min-width: 48rem`) so the JS and the CSS cannot
+  // disagree if the root font size ever changes.
+  useEffect(() => {
+    const desktop = window.matchMedia('(min-width: 48rem)');
+    const sync = () => {
+      if (desktop.matches) setOpen(false);
+    };
+    sync();
+    desktop.addEventListener('change', sync);
+    return () => desktop.removeEventListener('change', sync);
+  }, []);
+
   // Single-page site: every nav action is an in-page scroll. Each section
   // carries `scroll-mt-24` so it clears the fixed header.
   const goTo = (id: string) => {
@@ -54,6 +80,7 @@ export default function Nav() {
           {links.map((l) => (
             <button
               key={l.id}
+              type="button"
               onClick={() => goTo(l.id)}
               className="label transition-colors hover:text-ink"
             >
@@ -71,6 +98,7 @@ export default function Nav() {
         </nav>
 
         <button
+          type="button"
           className="flex flex-col gap-1.5 p-2 md:hidden"
           aria-expanded={open}
           aria-label={open ? 'Close menu' : 'Open menu'}
@@ -90,6 +118,7 @@ export default function Nav() {
           {links.map((l) => (
             <button
               key={l.id}
+              type="button"
               onClick={() => goTo(l.id)}
               className="block w-full py-3 text-left font-display text-2xl tracking-tight"
             >

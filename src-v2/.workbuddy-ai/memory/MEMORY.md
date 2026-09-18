@@ -31,9 +31,19 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **Design tokens** live in `src-v2/index.css` `@theme`: `paper`, `surface`, `ink`,
   `muted`, `line`, `accent`. Invented names like `text-fog` / `border-acid` do **not**
   exist and fail silently (unstyled render).
-- **Reduced motion is handled in two layers on purpose**: `useReducedMotion()` for
-  framer-motion, plus a global `@media (prefers-reduced-motion)` block in `index.css`
-  for CSS/compositor animation. Both are required — don't "dedupe" them.
+- **Reduced motion is handled in THREE layers on purpose** — each covers a different
+  mechanism, so none is redundant:
+  - `useReducedMotion()` for framer-motion (`m.*` initial/animate/whileInView).
+  - The global `@media (prefers-reduced-motion)` block in `index.css` for CSS transitions
+    and compositor animation (see the comment there before removing it).
+  - **`lib/scroll.ts` for JS-initiated scrolling.** `scrollIntoView({ behavior: 'smooth' })`
+    animates **regardless of the preference**, and neither of the other two layers reaches
+    it — measured at **25 distinct scroll positions** with reduced motion active. Use
+    `scrollToSection()` / `scrollToPageTop()`; never call `scrollIntoView` or
+    `window.scrollTo` directly.
+
+  `SmoothScroll` separately bails out of Lenis. Don't "dedupe" any of this — the earlier
+  note said "two layers" and was simply missing the third case.
 - **framer-motion must be used as `m.*`, never `motion.*`.** `main.tsx` wraps the app
   in `<LazyMotion features={domAnimation} strict>`. `motion.*` components bundle the
   full **domMax** set (~85 KB vs ~39 KB for `m.*` + domAnimation). `strict` throws in
@@ -190,17 +200,24 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **`exactOptionalPropertyTypes` is on** (added 2026-09-18) — it passed with zero
   errors, so it is pure hardening. `noUncheckedIndexedAccess` is deliberately **off**:
   it reports 4 errors in `BookingCalendar.tsx` (`'day' is possibly 'undefined'`) and
-  clearing them would need a non-null assertion. This codebase has **zero** `!`, `any`,
-  `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
+  clearing them would need a non-null assertion. This codebase has **zero** `any`,
+  `@ts-ignore` and `eslint-disable`, and exactly **one** non-null assertion —
+  `document.getElementById('root')!` in `main.tsx`, which `index.html` guarantees. (An
+  earlier note here claimed zero `!` as well; that was wrong.) That record is worth more
+  than the flag.
   If it is ever turned on, fix it structurally, not with an assertion.
-- **Behaviour is covered by `npm run test:e2e`** — 60 assertions in six suites
-  (`tests/suites/{scroll,nav,booking,a11y,meta,consistency}.mjs`), driving real Chrome
-  over CDP with no dependencies. It serves `dist` itself, so build first; Chrome must be
-  installed (`CHROME_PATH` overrides discovery). Full gate is
+- **Behaviour is covered by `npm run test:e2e`** — 66 assertions in seven suites
+  (`tests/suites/{scroll,nav,booking,a11y,meta,consistency,motion}.mjs`), driving real
+  Chrome over CDP with no dependencies. It serves `dist` itself, so build first; Chrome
+  must be installed (`CHROME_PATH` overrides discovery). Full gate is
   `npm run verify && npm run test:e2e`. **There is still no CI**: no `.github/` and no
   git remote, so a workflow file would be inert until a remote is added.
-  `consistency.mjs` hardcodes no expected strings — it derives a value from one rendered
-  element and asserts another agrees, so it cannot rot when the copy changes.
+  - `consistency.mjs` hardcodes no expected strings — it derives a value from one
+    rendered element and asserts another agrees, so it cannot rot when copy changes.
+  - `motion.mjs` toggles `prefers-reduced-motion` at runtime via
+    `Emulation.setEmulatedMedia`, so one browser covers both the animated and the
+    instant path. Asserting only the reduced half would pass for "always jump
+    instantly" — the animated half is checked first for that reason.
 
 ## Watch for orphaned claims
 
@@ -395,3 +412,5 @@ so read the markup instead of assuming the previous fix transfers.
 - Prose facts derived instead of restated (`sections`, `country`, `bookingWindow`,
   `yearsExperience`), the missing `main` landmark added, and the `consistency` suite in
   `ca1517a`; the harness now kills Chrome's process tree in `835a23b` (both 2026-09-18).
+- In-page scrolling made to respect `prefers-reduced-motion` via a new `lib/scroll.ts`
+  (the third motion layer), with the two-sided `motion` suite, in `cc41447` (2026-09-18).

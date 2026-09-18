@@ -1,4 +1,4 @@
-import { site } from '../data/site';
+import { site, bookingWindow } from '../data/site';
 import SectionHeading from '../components/SectionHeading';
 import Magnetic from '../components/Magnetic';
 import Reveal from '../components/Reveal';
@@ -16,7 +16,7 @@ export default function Contact() {
               Let&apos;s ship something worth signing<span className="text-accent">.</span>
             </>
           }
-          intro={`Currently booking ${site.availability.replace('Available for ', '')} — one engagement at a time, full attention.`}
+          intro={`Currently booking for ${bookingWindow} — one engagement at a time, full attention.`}
         />
 
         <div className="mt-16 grid gap-12 md:grid-cols-12 md:gap-16">

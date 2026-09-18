@@ -1,4 +1,4 @@
-import { site } from '../data/site';
+import { site, sections, country } from '../data/site';
 import Icon from './Icon';
 
 export default function Footer() {
@@ -28,14 +28,14 @@ export default function Footer() {
           </div>
 
           <nav className="flex flex-col gap-2.5" aria-label="Footer">
-            {['approach', 'services', 'about', 'contact'].map((id) => (
+            {sections.map((s) => (
               <button
-                key={id}
+                key={s.id}
                 type="button"
-                onClick={() => goTo(id)}
+                onClick={() => goTo(s.id)}
                 className="label text-left transition-colors hover:text-ink"
               >
-                {id}
+                {s.label}
               </button>
             ))}
           </nav>
@@ -61,7 +61,7 @@ export default function Footer() {
             © {year} {site.name}. All rights reserved.
           </p>
           <p className="font-mono text-[0.65rem] tracking-[0.2em] uppercase">
-            Designed & built in Nigeria
+            Designed & built in {country}
           </p>
         </div>
       </div>

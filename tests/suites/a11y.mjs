@@ -36,6 +36,12 @@ export default {
     const h1Count = await evaluate(`document.querySelectorAll('h1').length`);
     t.check('exactly one h1', h1Count === 1, `found ${h1Count}`);
 
+    // Nav and Footer were landmarks from the start, but the content between them was
+    // not, so "skip to main content" had nowhere to land. jsx-a11y does not require a
+    // main landmark, which is why nothing caught it.
+    const mainCount = await evaluate(`document.querySelectorAll('main').length`);
+    t.check('exactly one main landmark', mainCount === 1, `found ${mainCount}`);
+
     // Not currently a live bug — there is no <form> in the app — but the implicit
     // type="submit" becomes one the moment anything is wrapped in a form.
     const noType = await evaluate(

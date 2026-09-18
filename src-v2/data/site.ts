@@ -1,13 +1,43 @@
 import type { IconName } from '../components/Icon';
 
+/**
+ * Facts that prose quotes, named once and interpolated everywhere they appear.
+ *
+ * This is not tidiness for its own sake. About.tsx hardcoded "For 3+ years" beside a
+ * stat that said 3+, and the two had already drifted once — the notes record "8+ years"
+ * surviving the stat changing to 3+. Contact.tsx derived its intro by
+ * `availability.replace('Available for ', '')`, which silently does nothing if the
+ * prefix ever changes. Both are the same failure as `booking.daysAhead`: a fact stored
+ * twice, with nothing keeping the copies honest.
+ */
+export const country = 'Nigeria';
+export const bookingWindow = 'Q4 2026';
+export const yearsExperience = '3+';
+
+/**
+ * The four anchored sections, in page order.
+ *
+ * Nav and Footer both render this list. Before it existed each held its own copy of the
+ * ids, and they had already diverged: Nav printed labels ("Approach") while Footer
+ * printed raw ids ("approach"). Only the `label` class's `text-transform: uppercase`
+ * made the two look identical — the DOM text disagreed, and renaming a section id would
+ * have changed what the footer visibly said.
+ */
+export const sections = [
+  { id: 'approach', label: 'Approach' },
+  { id: 'services', label: 'Services' },
+  { id: 'about', label: 'About' },
+  { id: 'contact', label: 'Contact' },
+] as const;
+
 export const site = {
   name: 'Michael Nnamdi',
   firstName: 'Michael',
   role: 'UI/UX Designer & Creative Frontend',
   tagline: 'The design you approve is the design your users get.',
   email: 'michaelnnamdi04@gmail.com',
-  location: 'Nigeria · working worldwide',
-  availability: 'Available for Q4 2026 projects',
+  location: `${country} · working worldwide`,
+  availability: `Available for ${bookingWindow} projects`,
   intro:
     'I blend product thinking with production-grade frontend craft, so the design you approve is the design your users get. Most designers hand off mockups. I hand off working interfaces.',
   socials: [
@@ -17,22 +47,19 @@ export const site = {
     { label: 'Read.cv', href: 'https://read.cv/', icon: 'readcv' },
     { label: 'WhatsApp', href: 'https://wa.me/2349065239603', icon: 'whatsapp' },
   ] satisfies { label: string; href: string; icon: IconName }[],
-  stats: [{ value: '3+', label: 'years of designing & shipping' }],
+  stats: [{ value: yearsExperience, label: 'years of designing & shipping' }],
 };
 
 export const process = [
   {
-    index: '01',
     title: 'Discover',
     body: 'Stakeholder interviews, analytics teardown and user research. We find the real problem before touching a pixel — you get a written point of view, not a mood board.',
   },
   {
-    index: '02',
     title: 'Design',
     body: 'Flows, wireframes and high-fidelity UI in tight weekly loops. Interactive prototypes you can click, test with users and sign off on — no static-page guessing.',
   },
   {
-    index: '03',
     title: 'Deliver',
     body: 'I build the frontend myself or pair with your engineers. Design tokens, components and motion specs ship to production — what you approved is what goes live.',
   },

@@ -1,13 +1,6 @@
 import { useEffect, useState } from 'react';
-import { site } from '../data/site';
+import { site, sections } from '../data/site';
 import Magnetic from './Magnetic';
-
-const links = [
-  { id: 'approach', label: 'Approach' },
-  { id: 'services', label: 'Services' },
-  { id: 'about', label: 'About' },
-  { id: 'contact', label: 'Contact' },
-];
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
@@ -77,7 +70,7 @@ export default function Nav() {
         </button>
 
         <nav className="hidden items-center gap-8 md:flex" aria-label="Primary">
-          {links.map((l) => (
+          {sections.map((l) => (
             <button
               key={l.id}
               type="button"
@@ -115,7 +108,7 @@ export default function Nav() {
 
       {open && (
         <nav className="border-t border-line bg-paper px-6 pt-2 pb-8 md:hidden" aria-label="Mobile">
-          {links.map((l) => (
+          {sections.map((l) => (
             <button
               key={l.id}
               type="button"

@@ -31,6 +31,7 @@ const SUITES = [
   (await import('./suites/booking.mjs')).default,
   (await import('./suites/a11y.mjs')).default,
   (await import('./suites/meta.mjs')).default,
+  (await import('./suites/consistency.mjs')).default,
 ];
 
 const args = process.argv.slice(2);

@@ -1,4 +1,4 @@
-import { site } from '../data/site';
+import { site, country, yearsExperience } from '../data/site';
 import SectionHeading from '../components/SectionHeading';
 import Reveal from '../components/Reveal';
 
@@ -19,10 +19,10 @@ export default function About() {
           <Reveal className="md:col-span-7">
             <div className="space-y-6 text-base leading-relaxed text-muted md:text-lg">
               <p>
-                I&apos;m {site.name}, a product designer and creative frontend developer based in
-                Nigeria, working with teams worldwide. For 3+ years I&apos;ve designed and shipped
-                products across fintech, infrastructure and consumer apps — always owning the work
-                from first interview to production deploy.
+                I&apos;m {site.name}, a product designer and creative frontend developer based in{' '}
+                {country}, working with teams worldwide. For {yearsExperience} years I&apos;ve
+                designed and shipped products across fintech, infrastructure and consumer apps —
+                always owning the work from first interview to production deploy.
               </p>
               <p>
                 The gap between design and build is where most products lose their soul. I close

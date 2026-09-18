@@ -8,7 +8,12 @@ export default function App() {
     <div className="relative min-h-screen">
       <SmoothScroll />
       <Nav />
-      <Home />
+      {/* Nav and Footer are landmarks already, but the page content had none — a
+          screen-reader user could jump to the navigation and the footer and not to the
+          content between them. `main` is display:block, so this is layout-neutral. */}
+      <main>
+        <Home />
+      </main>
       <Footer />
     </div>
   );

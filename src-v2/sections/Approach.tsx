@@ -18,9 +18,14 @@ export default function Approach() {
 
         <ol className="mt-16 grid gap-px overflow-hidden rounded-lg border border-line bg-line md:grid-cols-3">
           {process.map((step, i) => (
-            <li key={step.index} className="bg-paper">
+            <li key={step.title} className="bg-paper">
               <Reveal delay={i * 0.1} className="flex h-full flex-col p-8 md:p-10">
-                <span className="font-mono text-xs tracking-[0.2em] text-accent">{step.index}</span>
+                {/* Derived from position, like Services does. The data used to carry its
+                    own `index: '01'`, so reordering the array would have printed the
+                    steps as 02, 01, 03 with nothing to catch it. */}
+                <span className="font-mono text-xs tracking-[0.2em] text-accent">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
                 <h3 className="mt-6 font-display text-2xl font-medium tracking-tight md:text-3xl">
                   {step.title}
                 </h3>

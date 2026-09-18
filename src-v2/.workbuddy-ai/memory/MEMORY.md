@@ -8,9 +8,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 
 ## Non-obvious facts that cause bugs
 
-- **Source root is `src-v2/`.** There is no `src/`. `index.html` loads `/src-v2/main.tsx`.
-  `tsconfig.json` includes `src-v2` only. If you add a source dir, extend `include` —
-  a `tsc` run that doesn't see the files **still exits 0**, producing a false green.
+- **Source root is `src-v2/`; the HTML entry is at the repo ROOT.** There is no `src/`.
+  **`Portfolio/index.html`** — not `src-v2/index.html` — is the entry, and it loads
+  `/src-v2/main.tsx`. Every `<head>` change (meta, favicon, sharing tags) goes in the
+  root file. `tsconfig.json` includes `src-v2` only. If you add a source dir, extend
+  `include` — a `tsc` run that doesn't see the files **still exits 0**, producing a
+  false green.
 - **The project root is the PARENT of this workspace folder.** The session opens on
   `Portfolio/src-v2/`, which holds *only source* — no `package.json`, `index.html`,
   `tsconfig.json`, `node_modules` or `dist/`. Every `npm` script and every build
@@ -77,6 +80,39 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   newsletter signup is the obvious candidate) would silently turn every button into a
   submit button. Six sites originally omitted it.
 
+## Sharing metadata + brand assets
+
+- **`public/favicon.svg` is the source of truth for the mark.** `npm run assets`
+  (`tools/generate-brand-assets.mjs`) regenerates `og-image.png` (1200×630),
+  `favicon-32.png` and `apple-touch-icon.png` from it, rendering through real Chrome —
+  no image toolchain. **Never hand-edit the PNGs**; they are generated, and an
+  unreproducible binary is the two-sources-of-truth failure this repo keeps hitting.
+- **The mark is a stroked `<path>`, not a `<text>` element.** A favicon is a standalone
+  document with no `@font-face`, so text would render in whatever font the viewer's
+  machine happens to have and the mark would differ per machine.
+- **It carries no accent dot, deliberately.** The wordmark in `Nav.tsx` ends in one, and
+  the first version of the mark had it — at 32px it merged into the M's right leg, the
+  gap working out to under half a pixel at 16px. Verified by rendering at 16/32/64 on
+  both light and dark chrome.
+- **`og:image`, `og:url` and `canonical` are root-relative and pending a domain.**
+  Crawlers want absolute URLs; there is no canonical domain yet (nothing in
+  `package.json`, `.verdentc.json` or these notes). The comment in `index.html` marks
+  the spot — prefix all three with the origin at deploy time.
+- **`tests/suites/meta.mjs` asserts content type, not status.** The static host answers
+  unknown paths with `index.html`, so a *missing* asset returns `200 text/html`. A
+  status-only check passed for a deleted `og-image.png`. Assert the MIME type.
+- **The five social links are known-bad and deliberately left alone.** `linkedin.com/`,
+  `dribbble.com/`, `github.com/` and `read.cv/` are *platform homepages*, not profiles —
+  a recruiter clicking one lands on a logged-out landing page. `read.cv` is worse than
+  shallow: it returns **402 Payment Required** with `X-Vercel-Error:
+  DEPLOYMENT_DISABLED` (acquired by Perplexity Jan 2025, operations ceased). Only
+  `wa.me/2349065239603` works. Fixing this needs real profile URLs — inventing a handle
+  produces a 404, which is worse than a homepage link.
+- **`src-v2/assets/portrait.svg` is NOT a brand asset.** Its own text reads
+  `PORTRAIT PLACEHOLDER`, and its palette (`#ccff00` acid on `#141412`) matches none of
+  the live tokens — it is a leftover from a superseded design direction. Don't build on
+  it. (Social platforms also reject SVG for `og:image` regardless.)
+
 ## Workflow
 
 - `npm run verify` = typecheck + lint + build. Run before handoff.
@@ -100,8 +136,9 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   mostly React itself plus the `motion-dom` core. The next real lever is dropping
   `framer-motion` for CSS animations plus a small spring for `Magnetic` — a rewrite,
   not a tweak.
-- **`src-v2/assets/portrait.svg` is unused.** Kept in case it is wanted for an About
-  photo; delete if not.
+- **`src-v2/assets/portrait.svg` is unused and stale.** Kept in case it is wanted for an
+  About photo; delete if not. See the brand-assets section — it is *not* usable as a
+  brand source.
 - **Stale build dirs are stranded in the project root** (`dist.stale`, `dist.prev`,
   `dist.keep3`, `dist.keep4`, `dist.keep5`) — created as sandbox workarounds and not
   deletable from inside it. Gitignored and verified harmless; remove by hand.
@@ -131,8 +168,8 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   clearing them would need a non-null assertion. This codebase has **zero** `!`, `any`,
   `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
   If it is ever turned on, fix it structurally, not with an assertion.
-- **Behaviour is covered by `npm run test:e2e`** — 29 assertions in four suites
-  (`tests/suites/{scroll,nav,booking,a11y}.mjs`), driving real Chrome over CDP with
+- **Behaviour is covered by `npm run test:e2e`** — 49 assertions in five suites
+  (`tests/suites/{scroll,nav,booking,a11y,meta}.mjs`), driving real Chrome over CDP with
   no dependencies. It serves `dist` itself, so build first; Chrome must be installed
   (`CHROME_PATH` overrides discovery). Full gate is
   `npm run verify && npm run test:e2e`. **There is still no CI**: no `.github/` and no
@@ -216,15 +253,44 @@ client or project, grep the prose for it.**
   headless clamps to a **~500px minimum width**, so a 390px shot is misleading.
 - **A screenshot can't prove a click works.** For behaviour, drive Chrome over CDP
   with Node 22's global `WebSocket` (no deps) and assert `scrollY` /
-  `getBoundingClientRect().top`. Three harness traps that all *looked* like app bugs:
-  never `sleep` a fixed time waiting for mount (Vite cold-transforms on first request,
-  mount ranged 1–10s → phantom `NOT_FOUND`s); always await `document.fonts.ready`
-  first (webfonts shift text metrics; a target computed pre-swap drifts ~21px); and
-  **identify repeated elements structurally, not by index or class** — the booking
-  harness tells day buttons from slot buttons by "contains two `<span>`s", because
-  both carry `aria-pressed` and index-based selection breaks the moment layout
-  changes. Run rendering checks against the **built output** behind a static server;
-  a cold dev server plus a first Chrome launch can exceed the mount timeout.
+  `getBoundingClientRect().top`. Never `sleep` a fixed time waiting for mount (Vite
+  cold-transforms on first request, mount ranged 1–10s → phantom `NOT_FOUND`s); always
+  await `document.fonts.ready` first (webfonts shift text metrics; a target computed
+  pre-swap drifts ~21px); and **identify repeated elements structurally, not by index or
+  class** — the booking harness tells day buttons from slot buttons by "contains two
+  `<span>`s", because both carry `aria-pressed` and index-based selection breaks the
+  moment layout changes. Run rendering checks against the **built output** behind a
+  static server; a cold dev server plus a first Chrome launch can exceed the mount
+  timeout.
+
+  Three more, all in the **launch path**, all previously reporting the same misleading
+  "Chrome never reported a DevTools port":
+  (1) `readFileSync` on `DevToolsActivePort` was unguarded — Chrome writes it in place
+  and on Windows the read lands mid-write and throws **EBUSY**, crashing out of
+  `launch()`; retry, because a locked file is not an absent one.
+  (2) Chrome's stderr was discarded (`stdio: 'ignore'`), throwing away the only thing
+  that explains a failure.
+  (3) **The harness attached to a target that never navigated.** Chrome is handed the
+  URL on its command line, but which target it creates first is a race — and a
+  pre-navigation target is already `readyState === "complete"`, so the readiness check
+  passes against a blank document. This is what produced a share card with every element
+  present and every word missing. Send `Page.navigate` and poll
+  `location.href === target`: **`readyState` cannot distinguish the new document from
+  the old one.** All three are fixed in `tests/harness.mjs` and mirrored into the
+  `headless-chrome-verify` skill's scripts.
+- **A webfont that fails to load looks like a deliberate design.** With
+  `font-display: block` the glyphs stay invisible until the font arrives, so every
+  element keeps its full box and *only the text* is missing — it reads as a minimalist
+  layout. A generated share card came out this way at 5.6 kB; correct was 46 kB. Assert
+  `document.fonts.check('110px Fraunces')` before capturing. A failed `@font-face` still
+  leaves elements measurable, so bounding-box assertions pass and cannot tell you.
+- **Git Bash rewrites POSIX paths passed to Windows binaries — including `node`.**
+  `/c/Users/.../script.mjs` became `c:\c\Users\...\script.mjs` and failed with
+  `MODULE_NOT_FOUND`, which reads as a missing file rather than a path-mangling problem.
+  Wrap with `cygpath -w`. Already documented for the Chrome binary; it applies to `node`
+  too.
+- **The sandbox proxy returns 502 for `127.0.0.1`,** so `curl` cannot verify a local
+  server. `curl --noproxy '*'` works, and Chrome connecting directly works.
 
 ## The lesson this codebase keeps teaching
 
@@ -238,6 +304,8 @@ authoritative**, each drifting silently.
 | `site.ts` testimonials vs `projects.ts` testimonials | Quotes from non-existent clients |
 | `.gitignore` vs where the files actually are | Build output and notes scanned as CSS source |
 | Auto-detected CSS sources vs what is actually source | Three separate dead-CSS leaks; fixed by declaring sources instead |
+| Assumed `src-v2/index.html` vs the real root `index.html` | Read the wrong path for a whole audit; it returns nothing rather than an error |
+| Hand-maintained PNGs vs the SVG that defines the mark | Why `tools/generate-brand-assets.mjs` is committed, not run once |
 
 All were fixed by **removing the duplication**, not by syncing it. Keep it that way —
 **derive, don't duplicate.** And a related rule: **the same visual symptom can have a
@@ -261,3 +329,6 @@ so read the markup instead of assuming the previous fix transfers.
   closable by Escape and across the desktop breakpoint, with `type="button"` added to
   six sites, in `eb4a76d`; the e2e suite added in `0b3bd3f` and Tailwind sources
   switched to an explicit allowlist in `d6919f1` (all 2026-09-18).
+- CDP harness launch-path bugs fixed (EBUSY on `DevToolsActivePort`, discarded stderr,
+  attach-without-navigate) in `0eee7f7`; favicon + share card, `npm run assets`, the
+  `meta` suite and the sharing metadata in `8a7c5a5` (both 2026-09-18).

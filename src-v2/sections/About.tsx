@@ -40,11 +40,13 @@ export default function About() {
           <Reveal delay={0.15} className="md:col-span-5">
             <dl className="flex flex-col divide-y divide-line border-y border-line">
               {site.stats.map((s) => (
-                <div key={s.label} className="flex items-baseline justify-between gap-6 py-6">
-                  <dd className="font-display text-4xl font-medium tracking-tight md:text-5xl">
+                <div key={s.label} className="flex items-center gap-x-2.5 py-6">
+                  {/* dt before dd keeps the markup valid; order-1/order-2 swap
+                      them visually so the value reads first. */}
+                  <dt className="order-2 text-sm text-muted">{s.label}</dt>
+                  <dd className="order-1 font-display text-4xl font-medium leading-none tracking-tight md:text-5xl">
                     {s.value}
                   </dd>
-                  <dt className="text-right text-sm text-muted">{s.label}</dt>
                 </div>
               ))}
             </dl>

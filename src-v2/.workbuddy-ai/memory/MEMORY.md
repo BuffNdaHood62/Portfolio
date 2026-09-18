@@ -11,6 +11,14 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **Source root is `src-v2/`.** There is no `src/`. `index.html` loads `/src-v2/main.tsx`.
   `tsconfig.json` includes `src-v2` only. If you add a source dir, extend `include` —
   a `tsc` run that doesn't see the files **still exits 0**, producing a false green.
+- **The project root is the PARENT of this workspace folder.** The session opens on
+  `Portfolio/src-v2/`, which holds *only source* — no `package.json`, `index.html`,
+  `tsconfig.json`, `node_modules` or `dist/`. Every `npm` script and every build
+  artifact lives in `Portfolio/`. Running `ls`/`git`/`npm` from the workspace folder
+  silently gives the wrong answer rather than an error: `ls -d dist*` in `src-v2`
+  returns nothing and reads as "the stale dirs are gone" when they are all still
+  there one level up. **`git rev-parse --show-toplevel` is the tiebreaker** —
+  it reports `C:/Users/Michael/.verdent/verdent-projects/Portfolio`.
 - **There is no router — don't reintroduce one without a second page.** In-page nav is
   `document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })` (see `Nav.tsx`,
   `Footer.tsx`, `Hero.tsx`); every section carries `scroll-mt-24` to clear the fixed
@@ -23,6 +31,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 - **Reduced motion is handled in two layers on purpose**: `useReducedMotion()` for
   framer-motion, plus a global `@media (prefers-reduced-motion)` block in `index.css`
   for CSS/compositor animation. Both are required — don't "dedupe" them.
+- **framer-motion must be used as `m.*`, never `motion.*`.** `main.tsx` wraps the app
+  in `<LazyMotion features={domAnimation} strict>`. `motion.*` components bundle the
+  full **domMax** set (~85 KB vs ~39 KB for `m.*` + domAnimation). `strict` throws in
+  dev if you slip back, so this can't silently regress. `domAnimation` **does** include
+  `whileInView` (it spreads `gestureAnimations`, which defines
+  `inView: { Feature: InViewFeature }`) — don't "upgrade" to domMax for it.
 - **All content lives in `data/site.ts`** — the only data file. Sections are
   `Hero`, `Approach`, `Services`, `About`, `Contact` (5, in `pages/Home.tsx`).
   Edit data before JSX.
@@ -61,18 +75,43 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 
 ## Known deferred work
 
-- **Bundle size**: ~367 KB raw / 117 KB gzip. Driven by `framer-motion@13` pulling the
-  full `motion-dom` engine, though the app uses only `motion.*`, `useMotionValue`,
-  `useSpring`, `useReducedMotion`. Options: `LazyMotion` + `domAnimation`, or the
-  `framer-motion/dom/mini` entry. (Was 410 KB before the router removal.)
+- **Bundle size**: ~319 KB raw / 103 KB gzip, down from 410 KB / 132 KB before this
+  session's work. Already optimised via `LazyMotion` + `domAnimation` (see the
+  framer-motion bullet above). What remains is mostly React itself plus the
+  `motion-dom` core. The next real lever is dropping `framer-motion` for CSS
+  animations plus a small spring for `Magnetic` — a rewrite, not a tweak.
 - **`src-v2/assets/portrait.svg` is unused.** Kept in case it is wanted for an About
   photo; delete if not.
 - **Stale build dirs are stranded in the project root** (`dist.stale`, `dist.prev`,
-  `dist.keep3`, `dist.keep4`) — created as sandbox workarounds and not deletable from
-  inside it. Gitignored and verified harmless; remove by hand.
-- No test runner or CI. `verify` is the gate. A throwaway CDP interaction harness
-  (`cdp-test.mjs`, `cdp-shot.mjs`) lives in the temp dir — see environment notes.
-  Worth committing if it becomes a real suite.
+  `dist.keep3`, `dist.keep4`, `dist.keep5`) — created as sandbox workarounds and not
+  deletable from inside it. Gitignored and verified harmless; remove by hand.
+- **`booking.daysAhead: 14` in `data/site.ts` is dead and misleading.** Zero
+  references anywhere; `BookingCalendar` hardcodes `while (list.length < 8)` — 8
+  *weekdays*, spanning ~10–12 calendar days. So the data claims 14 and nothing reads
+  it. Same orphaned-claim class as the old testimonials and the "40+ launches" stat.
+- **Two of the eight bookable days render with all five slots disabled, and there is
+  no empty state.** `isSlotBooked` is `((dayIndex + 2) * (slotIndex + 3)) % 5 === 0`,
+  so any `dayIndex ≡ 3 (mod 5)` is fully booked. The call site passes
+  `day.dayIndex + activeDay * 3`, but `dayIndex` is assigned `list.length` at push
+  time, so **`day.dayIndex === activeDay` always** — the expression is really
+  `activeDay * 4`. That makes **days 3 and 8** (indices 2 and 7) the dead ones; under
+  a plain `day.dayIndex` it would be day 4 instead. The arithmetic is confusing but is
+  not the real defect — the defect is that the UI prints the heading "Available slots"
+  above five struck-through, non-clickable buttons with no explanation and no route
+  forward. **Needs an empty state.** Changing the formula also changes which days look
+  free, so decide the intent before touching it.
+- **Stricter TS flags: one is free, one is not.** `exactOptionalPropertyTypes` passes
+  with **zero** errors today — enable it. `noUncheckedIndexedAccess` reports exactly
+  **4** errors, all in `BookingCalendar.tsx` (`'day' is possibly 'undefined'` at lines
+  41, 76 ×2, 125). None are runtime bugs (`activeDay` is only ever set from
+  `days.map`, and `days` is always length 8), but clearing them needs either a
+  non-null assertion or a `[DaySlot, ...DaySlot[]]` tuple return type — and this
+  codebase currently has **zero** `!`, `any`, `@ts-ignore` or `eslint-disable`. That
+  unbroken record is worth more than the flag; decide deliberately.
+- **No test runner or CI.** `verify` is the only gate, and nothing runs it
+  automatically (no `.github/`, no remote configured). Throwaway CDP harnesses
+  (`cdp-test.mjs`, `cdp-shot.mjs`, `cdp-anim-check.mjs`) live in the temp dir — see
+  environment notes. Worth committing as a real suite.
 
 ## Watch for orphaned claims
 
@@ -112,6 +151,13 @@ client or project, grep the prose for it.**
     were scanned as source; a note mentioning `gap-y-2` emitted a real `.gap-y-2`
     rule into the shipped stylesheet. Fixed with `@source not './.workbuddy-ai'` in
     `index.css`. **Prose should never be a CSS source.**
+
+  **The leak needs a non-CSS file.** The scanner ignores CSS comments: `index.css:10`
+  *still* contains the literal string `gap-y-2` in the very comment documenting this
+  bug, and no `.gap-y-2` rule is emitted (`grep '\.gap-y-' dist/assets/index-*.css`
+  → `.gap-y-3` only). So "grep the CSS for stray tokens" is the wrong audit — the
+  danger is class-like text in a file Tailwind treats as **opaque source** (`.md`,
+  build output). Fix it by excluding the file, not by editing the prose.
 - **Visual verification: `agent-browser` does not work here** (no browser runtime
   installed; its CLI `open` times out). Drive system Chrome directly:
 

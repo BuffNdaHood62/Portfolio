@@ -34,7 +34,11 @@ pnpm-debug.log*
 Thumbs.db
 
 # WorkBuddy AI project data (must not be deleted locally, but not source)
-.workbuddy-ai/memory/
+# NOTE: the leading `**/` is load-bearing. A pattern with a slash in the middle
+# (`.workbuddy-ai/memory/`) is anchored to the repo root, so it never matched the
+# real path under `src-v2/` — the rule was dead and the notes stayed tracked, which
+# is why `.gitignore` said "not source" while five memory files were committed.
+**/.workbuddy-ai/memory/
 
 # Publish tooling
 .verdent-*

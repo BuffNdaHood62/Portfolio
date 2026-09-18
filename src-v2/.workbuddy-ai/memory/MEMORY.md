@@ -94,11 +94,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
 
 ## Known deferred work
 
-- **Bundle size**: ~319.9 KB raw / ~103.6 KB gzip, down from 410 KB / 132 KB before
-  this session's work. Already optimised via `LazyMotion` + `domAnimation` (see the
-  framer-motion bullet above). What remains is mostly React itself plus the
-  `motion-dom` core. The next real lever is dropping `framer-motion` for CSS
-  animations plus a small spring for `Magnetic` — a rewrite, not a tweak.
+- **Bundle size**: ~319.9 KB raw / ~103.6 KB gzip JS, plus ~46.0 KB / ~19.8 KB CSS —
+  down from 410 KB / 132 KB before this session's work. Already optimised via
+  `LazyMotion` + `domAnimation` (see the framer-motion bullet above). What remains is
+  mostly React itself plus the `motion-dom` core. The next real lever is dropping
+  `framer-motion` for CSS animations plus a small spring for `Magnetic` — a rewrite,
+  not a tweak.
 - **`src-v2/assets/portrait.svg` is unused.** Kept in case it is wanted for an About
   photo; delete if not.
 - **Stale build dirs are stranded in the project root** (`dist.stale`, `dist.prev`,
@@ -130,13 +131,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   clearing them would need a non-null assertion. This codebase has **zero** `!`, `any`,
   `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
   If it is ever turned on, fix it structurally, not with an assertion.
-- **No test runner or CI.** `verify` is the only gate, and nothing runs it
-  automatically (no `.github/`, no remote configured — so a workflow file would be
-  inert until one is added). Behaviour is currently covered by four throwaway CDP
-  harnesses in the temp dir totalling **29 assertions** (nav 6, booking 11,
-  accessibility 5, scroll 7) — see environment notes. Worth committing as a real
-  suite. The reusable version of this whole approach now lives in the
-  `headless-chrome-verify` skill.
+- **Behaviour is covered by `npm run test:e2e`** — 29 assertions in four suites
+  (`tests/suites/{scroll,nav,booking,a11y}.mjs`), driving real Chrome over CDP with
+  no dependencies. It serves `dist` itself, so build first; Chrome must be installed
+  (`CHROME_PATH` overrides discovery). Full gate is
+  `npm run verify && npm run test:e2e`. **There is still no CI**: no `.github/` and no
+  git remote, so a workflow file would be inert until a remote is added.
 
 ## Watch for orphaned claims
 
@@ -166,23 +166,38 @@ client or project, grep the prose for it.**
 - `vite preview` and `python -m http.server` can return **502 through the sandbox
   proxy** even when the files are correct. Headless Chrome connecting to
   `127.0.0.1` directly works, which proves the build is fine.
-- **Tailwind v4 scans the whole project tree, honouring `.gitignore`** — anything not
-  ignored becomes a CSS source. Two patterns here were silently ineffective:
-  - `dist/` (trailing slash) matches only a dir named *exactly* `dist`, so
-    `dist.stale` was scanned and its own class-name strings re-emitted as 9 dead
-    utilities. Fixed with `dist.*/`.
-  - `.workbuddy-ai/memory/` contains a slash, so git anchored it to the repo **root**
-    while the dir is at `src-v2/.workbuddy-ai/memory/` — never matched. Project notes
-    were scanned as source; a note mentioning `gap-y-2` emitted a real `.gap-y-2`
-    rule into the shipped stylesheet. Fixed with `@source not './.workbuddy-ai'` in
-    `index.css`. **Prose should never be a CSS source.**
+- **Tailwind v4 source detection is an explicit allowlist — keep it that way.**
+  `index.css` uses `@import 'tailwindcss' source(none)` plus
+  `@source './**/*.{ts,tsx}'` and `@source '../index.html'`. Auto-detection scans
+  *every* file it is not told to ignore and treats it as opaque text, mining
+  class-like tokens out of it. That leaked dead CSS three separate times:
 
-  **The leak needs a non-CSS file.** The scanner ignores CSS comments: `index.css:10`
-  *still* contains the literal string `gap-y-2` in the very comment documenting this
-  bug, and no `.gap-y-2` rule is emitted (`grep '\.gap-y-' dist/assets/index-*.css`
-  → `.gap-y-3` only). So "grep the CSS for stray tokens" is the wrong audit — the
-  danger is class-like text in a file Tailwind treats as **opaque source** (`.md`,
-  build output). Fix it by excluding the file, not by editing the prose.
+  | what got scanned | what it emitted |
+  | --- | --- |
+  | `dist.stale` — build output left behind by a rename | 9 dead utilities |
+  | `.workbuddy-ai/` notes *describing* the leak | `.gap-y-2`, from the sentence about it |
+  | the `tests/` suite | `.blur`, `.outline`, `.resize` + 15 `@property`, from the words "blur", "outline", "resizing" |
+
+  Each was patched with `@source not`, which is a **denylist**: it needs updating
+  every time a directory is added, and when it is forgotten the failure is silent.
+  Registering the real sources instead removes the whole class of bug.
+
+  **Keep the glob precise.** `@source './'` looks equivalent and is not — it
+  registers the whole directory, recursing into `.workbuddy-ai/` and re-mining the
+  class names the notes above list *while documenting them*: 3.6 kB of dead CSS.
+  Only `.ts`/`.tsx` files and the HTML entry can carry classes.
+
+  **Find leaks by diffing builds, not by reading files.** Keep the previous output,
+  then compare normalised selectors:
+  `sed 's/}/}\n/g' old/assets/index-*.css | sort > /tmp/o` (same for new), then
+  `comm -13 /tmp/o /tmp/n`. All three leaks were invisible in review and obvious in
+  a diff. `dist.*/` in `.gitignore` is still right — build output should not be
+  committed — but it is no longer load-bearing for CSS.
+
+  **The leak needs a non-CSS file.** The scanner ignores CSS comments: `index.css`
+  still contains the literal string `gap-y-2` in the comment documenting this bug,
+  and no `.gap-y-2` rule is emitted. So "grep the CSS for stray tokens" is the wrong
+  audit — the danger is class-like text in a file Tailwind treats as opaque source.
 - **Visual verification: `agent-browser` does not work here** (no browser runtime
   installed; its CLI `open` times out). Drive system Chrome directly:
 
@@ -222,6 +237,7 @@ authoritative**, each drifting silently.
 | `tsconfig` vs `index.html` | False-green typecheck |
 | `site.ts` testimonials vs `projects.ts` testimonials | Quotes from non-existent clients |
 | `.gitignore` vs where the files actually are | Build output and notes scanned as CSS source |
+| Auto-detected CSS sources vs what is actually source | Three separate dead-CSS leaks; fixed by declaring sources instead |
 
 All were fixed by **removing the duplication**, not by syncing it. Keep it that way —
 **derive, don't duplicate.** And a related rule: **the same visual symptom can have a
@@ -243,4 +259,5 @@ so read the markup instead of assuming the previous fix transfers.
   notes in `86e2395`; booking availability capped, empty state added, `daysAhead`
   deleted and `exactOptionalPropertyTypes` enabled in `8f13000`; mobile menu made
   closable by Escape and across the desktop breakpoint, with `type="button"` added to
-  six sites, in `eb4a76d` (all 2026-09-18).
+  six sites, in `eb4a76d`; the e2e suite added in `0b3bd3f` and Tailwind sources
+  switched to an explicit allowlist in `d6919f1` (all 2026-09-18).

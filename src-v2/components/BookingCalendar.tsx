@@ -154,6 +154,12 @@ export default function BookingCalendar() {
                   }`}
                 >
                   {time}
+                  {/* The booked state was carried by `line-through` alone — a CSS
+                      decoration no assistive technology reports. The word "booked"
+                      appeared nowhere in the card, so a screen-reader user met a disabled
+                      button labelled "13:00" with no reason for it. The visual
+                      strikethrough stays; this only adds the missing explanation. */}
+                  {booked && <span className="sr-only"> — booked</span>}
                 </button>
               ))}
             </div>

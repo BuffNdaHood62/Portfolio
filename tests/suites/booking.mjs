@@ -26,11 +26,20 @@ export default {
       'positions and counts are deterministic',
     );
 
-    // Identify the two button groups by shape, not index. Both carry `aria-pressed`,
-    // so day buttons are told apart from slot buttons by "contains two spans"
-    // (weekday + date). Index-based selection breaks the moment layout changes.
-    const daySel = `[...document.querySelectorAll('#contact button[aria-pressed]')].filter((b) => b.querySelector('span'))`;
-    const slotSel = `[...document.querySelectorAll('#contact button[aria-pressed]')].filter((b) => !b.querySelector('span'))`;
+    // Identify the two button groups by *content*, not index and not DOM shape.
+    // Both carry `aria-pressed`, so they need a discriminator.
+    //
+    // This used to be `b.querySelector('span')` — day buttons have two spans
+    // (weekday + date), slot buttons had none. That silently coupled the test to a
+    // detail that is not its subject: adding the `sr-only` "— booked" span to booked
+    // slots gave them a span too, so those slots were counted as days (9 days, 4
+    // slots) and two checks failed for a change that was correct. A slot button's
+    // label is a time and a day button's is a weekday+date, so key off that: it
+    // survives any further span being added to either group.
+    const both = `[...document.querySelectorAll('#contact button[aria-pressed]')]`;
+    const isSlot = `((b) => /^\\d{2}:\\d{2}/.test(b.textContent.trim()))`;
+    const slotSel = `${both}.filter(${isSlot})`;
+    const daySel = `${both}.filter((b) => !${isSlot}(b))`;
 
     const days = await evaluate(`${daySel}.length`);
     t.check('eight day buttons rendered', days === 8, `found ${days}`);

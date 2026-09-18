@@ -42,4 +42,18 @@ export default tseslint.config(
       eqeqeq: ['error', 'smart'],
     },
   },
+  {
+    // The e2e suite runs in Node, not the browser, and prints its results to stdout.
+    files: ['tests/**/*.mjs'],
+    extends: [js.configs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'module',
+      globals: { ...globals.node, fetch: 'readonly', WebSocket: 'readonly' },
+    },
+    rules: {
+      'no-console': 'off',
+      eqeqeq: ['error', 'smart'],
+    },
+  },
 );

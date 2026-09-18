@@ -12,6 +12,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
+    "test:e2e": "node tests/run.mjs",
     "verify": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {

@@ -65,17 +65,36 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   `about`, `contact`. Keep these in sync with the `id=` attributes in `sections/`.
 - **Nav desktop breakpoint is `md`** with `gap-8`. It was briefly `lg` while six links
   existed; four fit at 768px comfortably. If you add links, re-check the width.
+- **The mobile menu must be closable three ways**: the toggle, picking a link, and
+  **Escape**, plus it must clear itself when the viewport crosses to desktop. The
+  toggle is `md:hidden`, so without the `matchMedia('(min-width: 48rem)')` listener a
+  stale `open` can never be reset by hand — the mobile nav stays in the DOM and the
+  header stays stuck with its blurred background at scroll top. Use `48rem`, not
+  `768px`: that is what Tailwind compiles `md` to (`@media(min-width:48rem)`), and a
+  hardcoded pixel value would drift if the root font size changed.
+- **Every `<button>` declares `type="button"`.** There is no `<form>` in the app today,
+  so the implicit `type="submit"` is inert — but wrapping anything in a form (a footer
+  newsletter signup is the obvious candidate) would silently turn every button into a
+  submit button. Six sites originally omitted it.
 
 ## Workflow
 
 - `npm run verify` = typecheck + lint + build. Run before handoff.
 - `npm run dev` / `build` / `preview`; `typecheck`, `lint`, `lint:fix`, `format`, `format:check`.
-- Quality gates: TypeScript strict + noUnused{Locals,Parameters} + verbatimModuleSyntax;
-  ESLint 9 flat config (typescript-eslint type-checked, react-hooks, jsx-a11y); Prettier.
+- Quality gates: TypeScript strict + `exactOptionalPropertyTypes` +
+  noUnused{Locals,Parameters} + verbatimModuleSyntax; ESLint 9 flat config
+  (typescript-eslint type-checked, react-hooks, jsx-a11y); Prettier.
+  `noUncheckedIndexedAccess` is deliberately **off** — see deferred work.
+- **Deploy is `npm ci`, so `package-lock.json` must stay in sync with `package.json`.**
+  `.verdentc.json` sets `installCmd: npm ci`, `buildCmd: npm run build`,
+  `outputDir: dist`. Removing a dependency from `package.json` without refreshing the
+  lockfile makes `npm ci` fail outright and breaks the deploy. Check with
+  `npm ci --dry-run`. Note `outputDir` is `dist` only, so the stale `dist.keep*` dirs
+  in the project root are **local clutter, not a deploy problem**.
 
 ## Known deferred work
 
-- **Bundle size**: ~319.5 KB raw / 103.5 KB gzip, down from 410 KB / 132 KB before
+- **Bundle size**: ~319.9 KB raw / ~103.6 KB gzip, down from 410 KB / 132 KB before
   this session's work. Already optimised via `LazyMotion` + `domAnimation` (see the
   framer-motion bullet above). What remains is mostly React itself plus the
   `motion-dom` core. The next real lever is dropping `framer-motion` for CSS
@@ -112,9 +131,12 @@ pages (removed 2026-09-17); `react-router-dom` removed 2026-09-18.
   `@ts-ignore` and `eslint-disable`; that unbroken record is worth more than the flag.
   If it is ever turned on, fix it structurally, not with an assertion.
 - **No test runner or CI.** `verify` is the only gate, and nothing runs it
-  automatically (no `.github/`, no remote configured). Throwaway CDP harnesses
-  (`cdp-test.mjs`, `cdp-shot.mjs`, `cdp-anim-check.mjs`, `cdp-booking.mjs`) live in the
-  temp dir — see environment notes. Worth committing as a real suite.
+  automatically (no `.github/`, no remote configured — so a workflow file would be
+  inert until one is added). Behaviour is currently covered by four throwaway CDP
+  harnesses in the temp dir totalling **29 assertions** (nav 6, booking 11,
+  accessibility 5, scroll 7) — see environment notes. Worth committing as a real
+  suite. The reusable version of this whole approach now lives in the
+  `headless-chrome-verify` skill.
 
 ## Watch for orphaned claims
 
@@ -219,4 +241,6 @@ so read the markup instead of assuming the previous fix transfers.
   About stat row realigned in `d491e18` (all 2026-09-18).
 - framer-motion switched to `m.*` + `LazyMotion(domAnimation)` in `80e1489`; audit
   notes in `86e2395`; booking availability capped, empty state added, `daysAhead`
-  deleted and `exactOptionalPropertyTypes` enabled in `8f13000` (all 2026-09-18).
+  deleted and `exactOptionalPropertyTypes` enabled in `8f13000`; mobile menu made
+  closable by Escape and across the desktop breakpoint, with `type="button"` added to
+  six sites, in `eb4a76d` (all 2026-09-18).

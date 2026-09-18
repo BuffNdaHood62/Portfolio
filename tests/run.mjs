@@ -32,6 +32,7 @@ const SUITES = [
   (await import('./suites/a11y.mjs')).default,
   (await import('./suites/meta.mjs')).default,
   (await import('./suites/consistency.mjs')).default,
+  (await import('./suites/motion.mjs')).default,
 ];
 
 const args = process.argv.slice(2);

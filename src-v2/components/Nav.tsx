@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { site, sections } from '../data/site';
+import { scrollToSection, scrollToPageTop } from '../lib/scroll';
 import Magnetic from './Magnetic';
 
 export default function Nav() {
@@ -39,16 +40,17 @@ export default function Nav() {
     return () => desktop.removeEventListener('change', sync);
   }, []);
 
-  // Single-page site: every nav action is an in-page scroll. Each section
-  // carries `scroll-mt-24` so it clears the fixed header.
+  // Single-page site: every nav action is an in-page scroll. Each section carries
+  // `scroll-mt-24` so it clears the fixed header. The scroll helpers honour
+  // prefers-reduced-motion — `scrollIntoView`'s 'smooth' does not.
   const goTo = (id: string) => {
     setOpen(false);
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+    scrollToSection(id);
   };
 
   const scrollToTop = () => {
     setOpen(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    scrollToPageTop();
   };
 
   return (

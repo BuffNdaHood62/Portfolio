@@ -1,5 +1,6 @@
 import { m, useReducedMotion } from 'framer-motion';
 import { site } from '../data/site';
+import { scrollToSection } from '../lib/scroll';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
 
@@ -50,9 +51,7 @@ export default function Hero() {
             <Magnetic>
               <button
                 type="button"
-                onClick={() =>
-                  document.getElementById('services')?.scrollIntoView({ behavior: 'smooth' })
-                }
+                onClick={() => scrollToSection('services')}
                 className="inline-block rounded-full bg-ink px-7 py-3.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
               >
                 What I do

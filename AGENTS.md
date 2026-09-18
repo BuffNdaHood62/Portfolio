@@ -36,9 +36,14 @@ React 19 + Vite 6 + TypeScript + Tailwind v4 single-page portfolio.
 
 - `strict` + `noUnusedLocals` + `noUnusedParameters` + `verbatimModuleSyntax` are on.
   Use `import type { ... }` for type-only imports.
-- Respect reduced motion: use `useReducedMotion()` for framer-motion. The
-  `prefers-reduced-motion` block in `index.css` covers CSS-only animation and is
-  deliberate — see the comment there before removing it.
+- Respect reduced motion — there are **three** layers, and all three are needed:
+  `useReducedMotion()` for framer-motion; the `prefers-reduced-motion` block in
+  `index.css` for CSS/compositor animation (deliberate — see the comment there before
+  removing it); and **`lib/scroll.ts` for in-page scrolling**. That third one is not
+  optional: `scrollIntoView({ behavior: 'smooth' })` animates *regardless* of the
+  preference, and neither of the other two layers reaches it — measured at 25 distinct
+  scroll positions with reduced motion active. Use `scrollToSection()` /
+  `scrollToPageTop()` instead of calling `scrollIntoView` or `window.scrollTo` directly.
 - Use the design tokens in `index.css` `@theme` (`bg-paper`, `text-ink`, `text-muted`,
   `border-line`, `text-accent`). Do not invent token names such as `text-fog` or
   `border-acid` — they do not exist and will silently render unstyled.

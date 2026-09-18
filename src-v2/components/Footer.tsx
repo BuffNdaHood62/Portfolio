@@ -1,12 +1,9 @@
 import { site, sections, country } from '../data/site';
+import { scrollToSection } from '../lib/scroll';
 import Icon from './Icon';
 
 export default function Footer() {
   const year = new Date().getFullYear();
-
-  const goTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
 
   return (
     <footer className="border-t border-line">
@@ -32,7 +29,7 @@ export default function Footer() {
               <button
                 key={s.id}
                 type="button"
-                onClick={() => goTo(s.id)}
+                onClick={() => scrollToSection(s.id)}
                 className="label text-left transition-colors hover:text-ink"
               >
                 {s.label}

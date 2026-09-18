@@ -1,17 +1,30 @@
-@import 'tailwindcss';
+@import 'tailwindcss' source(none);
 @import '@fontsource-variable/fraunces';
 @import '@fontsource-variable/inter';
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
 
-/* Tailwind v4 auto-detects content by scanning the project tree, honouring
-   .gitignore. Project notes under .workbuddy-ai/ are prose, not source, and the
-   scanner cannot tell the difference — it was mining class names out of markdown
-   (a note mentioning `gap-y-2` emitted a real .gap-y-2 utility into the shipped
-   stylesheet). Exclude it explicitly rather than relying on .gitignore, whose
-   `.workbuddy-ai/memory/` rule is anchored to the repo root and never matched
-   this directory at src-v2/.workbuddy-ai/memory/. */
-@source not './.workbuddy-ai';
+/* Tailwind v4 auto-detects content by scanning the whole project tree, honouring
+   .gitignore — and it cannot tell source from prose. It treats anything not ignored
+   as opaque text and mines class-like tokens out of it. That produced three separate
+   leaks into the shipped stylesheet:
+
+     - build output left behind by a rename (dist.stale) re-emitted 9 dead utilities;
+     - project notes under .workbuddy-ai/ emitted a gap-y-2 utility from a sentence
+       describing that very bug;
+     - the test suite under tests/ emitted blur, outline and resize, plus 15 @property
+       declarations, purely from ordinary English words in comments and strings.
+
+   Excluding directories one at a time is a denylist: it needs updating every time a
+   directory is added, and the failure is silent. So opt out of automatic detection
+   and register the real sources instead.
+
+   Keep the glob precise. `@source './'` looks equivalent but is not: it registers the
+   whole directory, recursing into .workbuddy-ai/ and re-mining the very class names
+   the notes above list while documenting them — 3.6 kB of dead CSS. Only .ts/.tsx
+   files and the HTML entry can carry classes. */
+@source './**/*.{ts,tsx}';
+@source '../index.html';
 
 @theme {
   --color-paper: #faf7f2;

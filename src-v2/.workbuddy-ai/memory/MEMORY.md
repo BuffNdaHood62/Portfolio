@@ -86,6 +86,23 @@ client or project, grep the prose for it.**
   `prepareOutDir`/`emptyDir` — sandbox trash shim. Clears once `dist/` is emptied.
 - `vite preview` can return 502 for assets through the sandbox proxy even when the
   files are correct. Verify by reading `dist/` directly.
+- **Visual verification: `agent-browser` does not work here** (no browser runtime
+  installed; its CLI `open` times out). Drive system Chrome instead:
+
+  ```bash
+  CHROME="/c/Program Files/Google/Chrome/Application/chrome.exe"
+  WD="$(cygpath -w /tmp/shots)"
+  "$CHROME" --headless=new --disable-gpu --hide-scrollbars \
+    --force-prefers-reduced-motion --virtual-time-budget=6000 \
+    --window-size=1280,1000 --screenshot="$WD\\x.png" "http://127.0.0.1:5199/"
+  ```
+
+  Three traps, all of which fail **silently** (exit 0, no file written):
+  (1) Chrome is a Windows binary — a POSIX `--screenshot=/tmp/...` path writes
+  nothing, so convert with `cygpath -w` first; (2) `--force-prefers-reduced-motion`
+  is **mandatory** or the framer-motion entrance animations haven't run and the
+  hero captures *invisible*; (3) Windows headless clamps to a **~500px minimum
+  window width**, so a 390px shot is silently misleading — test at 500+.
 
 ## The lesson this codebase keeps teaching
 
@@ -109,3 +126,5 @@ config. Keep it that way — **derive, don't duplicate.**
 - Testimonials deduplicated from `projects` in `9bf621a` (later removed entirely).
 - Case studies, `projects.ts`, Testimonials section and cover assets removed, and
   Lagos replaced with Nigeria, in `fa1da45` (2026-09-17).
+- Email/socials/WhatsApp + single stat in `e9ac090`; hero stat row realigned to
+  `items-center` in `98a7da6` (2026-09-18).

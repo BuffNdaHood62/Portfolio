@@ -4,6 +4,15 @@
 @import '@fontsource/jetbrains-mono/400.css';
 @import '@fontsource/jetbrains-mono/500.css';
 
+/* Tailwind v4 auto-detects content by scanning the project tree, honouring
+   .gitignore. Project notes under .workbuddy-ai/ are prose, not source, and the
+   scanner cannot tell the difference — it was mining class names out of markdown
+   (a note mentioning `gap-y-2` emitted a real .gap-y-2 utility into the shipped
+   stylesheet). Exclude it explicitly rather than relying on .gitignore, whose
+   `.workbuddy-ai/memory/` rule is anchored to the repo root and never matched
+   this directory at src-v2/.workbuddy-ai/memory/. */
+@source not './.workbuddy-ai';
+
 @theme {
   --color-paper: #faf7f2;
   --color-surface: #f2ede4;

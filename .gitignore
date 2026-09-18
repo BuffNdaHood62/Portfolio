@@ -2,8 +2,14 @@
 node_modules/
 
 # Build output
+# NOTE: `dist/` with a trailing slash matches ONLY a directory named exactly
+# "dist". Stale or renamed output dirs (dist.stale, dist.prev, dist.bak) were
+# therefore neither ignored by git nor excluded from Tailwind v4's automatic
+# content detection — which scanned the previous build's CSS/JS and re-emitted
+# class names found there as dead CSS. `dist.*/` closes that hole.
 dist/
 dist-ssr/
+dist.*/
 
 # TypeScript build cache
 *.tsbuildinfo

@@ -12,7 +12,7 @@
  *    Callers poll with `waitFor`. A fixed sleep races module loading and produces
  *    phantom "element not found" failures that look like application bugs.
  */
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 import { existsSync, mkdtempSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -42,6 +42,24 @@ export function findChrome() {
 }
 
 export const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Kill Chrome *and its children*.
+ *
+ * `child.kill()` only signals the launcher. Chrome spawns a tree — renderers, GPU,
+ * crashpad — and on Windows those survive their parent, so every failed or closed run
+ * leaks processes. Observed: 9 orphans from a single launch that hung, and 20 live
+ * chrome.exe at one point. They hold memory and can interfere with the next run.
+ */
+function killChrome(proc) {
+  if (proc.exitCode !== null || proc.signalCode !== null) return;
+  if (process.platform === 'win32') {
+    // /T walks the tree, /F skips the graceful-shutdown handshake.
+    spawnSync('taskkill', ['/F', '/T', '/PID', String(proc.pid)], { stdio: 'ignore' });
+    return;
+  }
+  proc.kill();
+}
 
 /**
  * Launch Chrome and connect. Returns the helper set passed to every suite.
@@ -94,9 +112,11 @@ export async function launch({ url, reducedMotion = false, width = 1280, height 
     await sleep(100);
   }
   if (!port) {
-    chrome.kill();
+    killChrome(chrome);
     throw new Error(
-      'Chrome never reported a DevTools port' +
+      'Chrome never reported a DevTools port.' +
+        '\n  A Chrome auto-update in progress is a known cause: launches hang and never' +
+        '\n  publish the port. Retry once the update finishes.' +
         (chromeStderr ? `\nChrome said:\n${chromeStderr.trim()}` : ''),
     );
   }
@@ -112,7 +132,7 @@ export async function launch({ url, reducedMotion = false, width = 1280, height 
     if (!target) await sleep(150);
   }
   if (!target) {
-    chrome.kill();
+    killChrome(chrome);
     throw new Error('No debuggable page target appeared');
   }
 
@@ -182,7 +202,7 @@ export async function launch({ url, reducedMotion = false, width = 1280, height 
     } catch {
       /* already closed */
     }
-    chrome.kill();
+    killChrome(chrome);
   }
 
   await send('Runtime.enable');

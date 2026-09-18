@@ -328,7 +328,9 @@ update it in the same commit.
 - **`child.kill()` does not kill Chrome's children.** Chrome spawns a tree — renderers,
   GPU, crashpad — that survives its parent on Windows: 9 orphans from one hung launch, 20
   live `chrome.exe` at one point. `tests/harness.mjs` now uses `taskkill /F /T`. Verified
-  stable: a full six-suite run leaves the process count unchanged (9 → 9).
+  stable: a full six-suite run settles back to the baseline (9 → 10 → 9). **Count with a
+  settle delay** — reading immediately after the run shows the last tree still tearing
+  down, which looks like a leak and is not one.
 - **Never `taskkill /IM chrome.exe` to clean up.** The user's real browser session runs
   on the default profile and is indistinguishable in `tasklist`. Filter on the command
   line (`--user-data-dir=<temp>`) and kill by PID — **19 of the 20** processes above were

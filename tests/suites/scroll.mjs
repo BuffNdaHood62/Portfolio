@@ -37,7 +37,7 @@ export default {
 
   async run({ evaluate, waitFor, send, sleep }, t) {
     await waitFor(
-      `!!document.getElementById('services') && !!document.querySelector('nav[aria-label="Primary"] button')`,
+      `!!document.getElementById('skills') && !!document.querySelector('nav[aria-label="Primary"] button')`,
       'the app to mount',
     );
 
@@ -53,11 +53,11 @@ export default {
     t.check('desktop nav visible at 1280px', navVisible === true, `display !== none -> ${navVisible}`);
 
     // --- 3. Desktop nav click reaches the section, clear of the header ------
-    const navClick = await evaluate(clickTextExpr('nav[aria-label="Primary"] button', 'Services'));
-    const navSettled = await waitFor(settledExpr('services'), '#services to settle');
-    const svc = await evaluate(sectionTopExpr('services'));
+    const navClick = await evaluate(clickTextExpr('nav[aria-label="Primary"] button', 'Skills'));
+    const navSettled = await waitFor(settledExpr('skills'), '#skills to settle');
+    const svc = await evaluate(sectionTopExpr('skills'));
     t.check(
-      'nav "Services" click scrolls to #services',
+      'nav "Skills" click scrolls to #skills',
       navClick === 'CLICKED' && navSettled && !!svc && svc.scrollY > 100 && Math.abs(svc.top - HEADER_OFFSET) <= 10,
       `${navClick}; scrollY=${svc?.scrollY}, top=${svc?.top} (want ~${HEADER_OFFSET})`,
     );
@@ -104,11 +104,14 @@ export default {
     await evaluate('window.scrollTo(0, 0)');
     await sleep(300);
 
-    await evaluate(`document.querySelector('header button[aria-label]').click()`);
+    // Target the hamburger by name: the header now also holds a theme toggle with
+    // its own aria-label, and a bare `[aria-label]` would click whichever comes first.
+    const burgerSel = `'header button[aria-label="Open menu"], header button[aria-label="Close menu"]'`;
+    await evaluate(`document.querySelector(${burgerSel}).click()`);
     await waitFor(`!!document.querySelector('nav[aria-label="Mobile"]')`, 'mobile menu to open');
     const menu = await evaluate(`(() => {
       const nav = document.querySelector('nav[aria-label="Mobile"]');
-      const burger = document.querySelector('header button[aria-label]');
+      const burger = document.querySelector(${burgerSel});
       return { menuOpen: !!nav, expanded: burger?.getAttribute('aria-expanded') };
     })()`);
     t.check(

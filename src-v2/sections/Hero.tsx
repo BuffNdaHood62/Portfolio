@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { site } from '../data/site';
+import { site, buildsWith, stats } from '../data/site';
 import { scrollToSection } from '../lib/scroll';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
@@ -16,19 +16,19 @@ export default function Hero() {
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.8, delay: 0.1 }}
-          className="label flex items-center gap-2.5"
+          className="inline-flex items-center gap-2.5 rounded-full border border-line bg-surface px-4 py-1.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-muted"
         >
           <span className="inline-block size-1.5 rounded-full bg-accent animate-pulse-dot" />
           {site.availability}
         </m.p>
 
-        <h1 className="mt-8 font-display text-[clamp(2.75rem,8vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.02em]">
-          <LineMask delay={0.15}>Design that feels</LineMask>
+        <p className="mt-10 text-lg text-muted md:text-xl">Hi, I&apos;m {site.name}.</p>
+
+        <h1 className="mt-2 font-display text-[clamp(2.75rem,8vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.02em]">
+          <LineMask delay={0.15}>I build things</LineMask>
           <LineMask delay={0.28}>
-            inevitable<span className="text-accent">.</span>
-          </LineMask>
-          <LineMask delay={0.41}>
-            <span className="text-muted italic font-light">And ships.</span>
+            with {buildsWith}
+            <span className="text-accent">.</span>
           </LineMask>
         </h1>
 
@@ -51,10 +51,10 @@ export default function Hero() {
             <Magnetic>
               <button
                 type="button"
-                onClick={() => scrollToSection('services')}
+                onClick={() => scrollToSection('work')}
                 className="inline-block rounded-full bg-ink px-7 py-3.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-paper transition-colors hover:bg-accent"
               >
-                What I do
+                View my work
               </button>
             </Magnetic>
             <Magnetic>
@@ -72,14 +72,14 @@ export default function Hero() {
           initial={reduce ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.9 }}
-          className="mt-16 flex flex-wrap items-center gap-x-4 gap-y-3 border-t border-line pt-8"
+          className="mt-16 flex flex-wrap items-center gap-x-10 gap-y-6 border-t border-line pt-8"
         >
-          {site.stats.map((s) => (
+          {stats.map((s) => (
             <div key={s.label} className="flex items-center gap-x-2.5">
-              <dt className="order-2 text-sm text-muted">{s.label}</dt>
-              <dd className="order-1 font-display text-3xl font-medium leading-none tracking-tight md:text-4xl">
+              <dd className="font-display text-3xl font-medium leading-none tracking-tight md:text-4xl">
                 {s.value}
               </dd>
+              <dt className="text-sm text-muted">{s.label}</dt>
             </div>
           ))}
         </m.dl>

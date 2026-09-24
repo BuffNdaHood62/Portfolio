@@ -8,13 +8,17 @@ interface RevealProps {
   className?: string;
   delay?: number;
   y?: number;
+  as?: 'div' | 'li';
 }
 
-export default function Reveal({ children, className, delay = 0, y = 28 }: RevealProps) {
+const TAGS = { div: m.div, li: m.li };
+
+export default function Reveal({ children, className, delay = 0, y = 28, as = 'div' }: RevealProps) {
   const reduce = useReducedMotion();
+  const Tag = TAGS[as];
 
   return (
-    <m.div
+    <Tag
       initial={reduce ? false : { opacity: 0, y }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-60px' }}
@@ -22,7 +26,7 @@ export default function Reveal({ children, className, delay = 0, y = 28 }: Revea
       className={className}
     >
       {children}
-    </m.div>
+    </Tag>
   );
 }
 

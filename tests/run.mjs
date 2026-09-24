@@ -28,7 +28,7 @@ const distDir = join(projectRoot, 'dist');
 const SUITES = [
   (await import('./suites/scroll.mjs')).default,
   (await import('./suites/nav.mjs')).default,
-  (await import('./suites/booking.mjs')).default,
+  (await import('./suites/theme.mjs')).default,
   (await import('./suites/a11y.mjs')).default,
   (await import('./suites/meta.mjs')).default,
   (await import('./suites/consistency.mjs')).default,

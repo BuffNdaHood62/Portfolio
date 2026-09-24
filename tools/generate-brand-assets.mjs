@@ -80,15 +80,15 @@ function cardHtml() {
 </head>
 <body>
   <div class="top">
-    <div class="eyebrow"><i></i>UI/UX Designer &amp; Creative Frontend</div>
+    <div class="eyebrow"><i></i>Frontend Developer</div>
     <div class="mark">${markSvg(64)}</div>
   </div>
   <div>
     <h1 class="name">Michael Nnamdi<span class="stop">.</span></h1>
-    <p class="hook">Design that feels inevitable. <em>And ships.</em></p>
+    <p class="hook">I build things with React. <em>And ship them.</em></p>
   </div>
   <div class="foot">
-    <span>Available for Q4 2026 projects</span>
+    <span>Open to opportunities</span>
     <span>Nigeria &middot; working worldwide</span>
   </div>
 </body>

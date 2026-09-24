@@ -26,13 +26,39 @@
 @source './**/*.{ts,tsx}';
 @source '../index.html';
 
-@theme {
-  --color-paper: #faf7f2;
-  --color-surface: #f2ede4;
-  --color-ink: #1c1915;
-  --color-muted: #6e675c;
-  --color-line: #e2dcd0;
-  --color-accent: #b0521d;
+/* Theme values live as plain custom properties on :root/.dark so they can flip at
+   runtime; `@theme inline` then exposes them as Tailwind utilities that reference
+   the live property rather than baking the value in. A non-inline @theme would
+   copy the hex into the utility and the toggle would do nothing. */
+:root {
+  --paper: #faf7f2;
+  --surface: #f2ede4;
+  --ink: #1c1915;
+  --muted: #6e675c;
+  --line: #e2dcd0;
+  --accent: #b0521d;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #14110d;
+  --surface: #1d1913;
+  --ink: #f2ede4;
+  --muted: #a2988a;
+  --line: #322c23;
+  --accent: #e07a3f;
+  color-scheme: dark;
+}
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
 
   --font-display: 'Fraunces Variable', Georgia, serif;
   --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;

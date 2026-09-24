@@ -1,16 +1,18 @@
 import Hero from '../sections/Hero';
-import Approach from '../sections/Approach';
-import Services from '../sections/Services';
 import About from '../sections/About';
+import Skills from '../sections/Skills';
+import Work from '../sections/Work';
+import Roadmap from '../sections/Roadmap';
 import Contact from '../sections/Contact';
 
 export default function Home() {
   return (
     <>
       <Hero />
-      <Approach />
-      <Services />
       <About />
+      <Skills />
+      <Work />
+      <Roadmap />
       <Contact />
     </>
   );

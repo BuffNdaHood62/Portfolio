@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { site, sections } from '../data/site';
 import { scrollToSection, scrollToPageTop } from '../lib/scroll';
+import { useTheme } from '../lib/theme';
 import Magnetic from './Magnetic';
+import Icon from './Icon';
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const { dark, toggle } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -87,25 +90,36 @@ export default function Nav() {
               href={`mailto:${site.email}`}
               className="inline-block rounded-full border border-ink px-5 py-2 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase transition-colors hover:bg-ink hover:text-paper"
             >
-              Start a project
+              Get in touch
             </a>
           </Magnetic>
         </nav>
 
-        <button
-          type="button"
-          className="flex flex-col gap-1.5 p-2 md:hidden"
-          aria-expanded={open}
-          aria-label={open ? 'Close menu' : 'Open menu'}
-          onClick={() => setOpen(!open)}
-        >
-          <span
-            className={`h-px w-6 bg-ink transition-transform ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
-          />
-          <span
-            className={`h-px w-6 bg-ink transition-transform ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`}
-          />
-        </button>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={toggle}
+            aria-label={dark ? 'Switch to light theme' : 'Switch to dark theme'}
+            className="rounded-full p-2 transition-colors hover:bg-surface"
+          >
+            <Icon name={dark ? 'sun' : 'moon'} className="size-4" />
+          </button>
+
+          <button
+            type="button"
+            className="flex flex-col gap-1.5 p-2 md:hidden"
+            aria-expanded={open}
+            aria-label={open ? 'Close menu' : 'Open menu'}
+            onClick={() => setOpen(!open)}
+          >
+            <span
+              className={`h-px w-6 bg-ink transition-transform ${open ? 'translate-y-[3.5px] rotate-45' : ''}`}
+            />
+            <span
+              className={`h-px w-6 bg-ink transition-transform ${open ? '-translate-y-[3.5px] -rotate-45' : ''}`}
+            />
+          </button>
+        </div>
       </div>
 
       {open && (
@@ -124,7 +138,7 @@ export default function Nav() {
             href={`mailto:${site.email}`}
             className="mt-4 inline-block rounded-full border border-ink px-5 py-2.5 font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase"
           >
-            Start a project
+            Get in touch
           </a>
         </nav>
       )}

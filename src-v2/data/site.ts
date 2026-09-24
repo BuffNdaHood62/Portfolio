@@ -3,113 +3,234 @@ import type { IconName } from '../components/Icon';
 /**
  * Facts that prose quotes, named once and interpolated everywhere they appear.
  *
- * This is not tidiness for its own sake. About.tsx hardcoded "For 3+ years" beside a
- * stat that said 3+, and the two had already drifted once — the notes record "8+ years"
- * surviving the stat changing to 3+. Contact.tsx derived its intro by
- * `availability.replace('Available for ', '')`, which silently does nothing if the
- * prefix ever changes. Both are the same failure as `booking.daysAhead`: a fact stored
- * twice, with nothing keeping the copies honest.
+ * This is not tidiness for its own sake. The old About section hardcoded "For 3+ years"
+ * beside a stat that said 3+, and the two had already drifted once. Every number or
+ * name below is stated once and derived from everywhere else.
  */
 export const country = 'Nigeria';
-export const bookingWindow = 'Q4 2026';
-export const yearsExperience = '3+';
+export const buildsWith = 'React';
 
 /**
- * The four anchored sections, in page order.
- *
- * Nav and Footer both render this list. Before it existed each held its own copy of the
- * ids, and they had already diverged: Nav printed labels ("Approach") while Footer
- * printed raw ids ("approach"). Only the `label` class's `text-transform: uppercase`
- * made the two look identical — the DOM text disagreed, and renaming a section id would
- * have changed what the footer visibly said.
+ * The anchored sections, in page order. Nav and Footer both render this list, and
+ * every section heading derives its number from its position here — never a stored
+ * `index`. "Work" (#work) wraps both the shipped projects and the upcoming queue.
  */
 export const sections = [
-  { id: 'approach', label: 'Approach' },
-  { id: 'services', label: 'Services' },
   { id: 'about', label: 'About' },
+  { id: 'skills', label: 'Skills' },
+  { id: 'work', label: 'Work' },
+  { id: 'roadmap', label: 'Roadmap' },
   { id: 'contact', label: 'Contact' },
 ] as const;
+
+/** '01'…'NN' from a section's position in `sections` — never a stored number. */
+export function sectionNumber(id: string): string {
+  return String(
+    sections.findIndex((s) => s.id === id) + 1,
+  ).padStart(2, '0');
+}
 
 export const site = {
   name: 'Michael Nnamdi',
   firstName: 'Michael',
-  role: 'UI/UX Designer & Creative Frontend',
-  tagline: 'The design you approve is the design your users get.',
+  handle: 'michael.nnamdi',
+  role: 'Frontend Developer',
+  tagline: `I build things with ${buildsWith}.`,
   email: 'michaelnnamdi04@gmail.com',
   location: `${country} · working worldwide`,
-  availability: `Available for ${bookingWindow} projects`,
-  intro:
-    'I blend product thinking with production-grade frontend craft, so the design you approve is the design your users get. Most designers hand off mockups. I hand off working interfaces.',
+  availability: 'Open to opportunities',
+  intro: `Frontend developer focused on clean, typed React — I take designs and turn them into interfaces that actually ship. I work with TypeScript and Tailwind daily, am building my way through Next.js and Supabase, and learn best by publishing what I make — one deployed project at a time.`,
   socials: [
-    { label: 'LinkedIn', href: 'https://www.linkedin.com/', icon: 'linkedin' },
-    { label: 'Dribbble', href: 'https://dribbble.com/', icon: 'dribbble' },
-    { label: 'GitHub', href: 'https://github.com/', icon: 'github' },
-    { label: 'Read.cv', href: 'https://read.cv/', icon: 'readcv' },
+    { label: 'GitHub', href: 'https://github.com/BuffNdaHood62', icon: 'github' },
+    { label: 'Email', href: 'mailto:michaelnnamdi04@gmail.com', icon: 'mail' },
     { label: 'WhatsApp', href: 'https://wa.me/2349065239603', icon: 'whatsapp' },
   ] satisfies { label: string; href: string; icon: IconName }[],
-  stats: [{ value: yearsExperience, label: 'years of designing & shipping' }],
 };
 
-export const process = [
+/** Honest self-rating levels — a skill is exactly one of these, no fake percentages. */
+export type SkillLevel = 'core' | 'confident' | 'learning';
+
+export const skills = [
   {
-    title: 'Discover',
-    body: 'Stakeholder interviews, analytics teardown and user research. We find the real problem before touching a pixel — you get a written point of view, not a mood board.',
+    emoji: '⚛️',
+    name: buildsWith,
+    level: 'core',
+    tag: 'Primary language',
+    body: 'Components, hooks, state and composition. Every project I have shipped is React — with the strict TypeScript settings this site itself runs on.',
   },
   {
-    title: 'Design',
-    body: 'Flows, wireframes and high-fidelity UI in tight weekly loops. Interactive prototypes you can click, test with users and sign off on — no static-page guessing.',
+    emoji: '🟦',
+    name: 'TypeScript',
+    level: 'core',
+    tag: 'Daily driver',
+    body: 'Typed props, discriminated unions, `satisfies` over casts. I treat type errors as design feedback, not friction.',
   },
   {
-    title: 'Deliver',
-    body: 'I build the frontend myself or pair with your engineers. Design tokens, components and motion specs ship to production — what you approved is what goes live.',
+    emoji: '🎨',
+    name: 'Tailwind CSS',
+    level: 'confident',
+    tag: 'Styling',
+    body: 'Token-driven styling with custom @theme systems — like the paper/ink palette behind this page — instead of one-off hex values.',
+  },
+  {
+    emoji: '📐',
+    name: 'HTML & CSS',
+    level: 'confident',
+    tag: 'Foundations',
+    body: 'Semantic markup, flex/grid layout, responsive breakpoints and accessibility basics: landmarks, contrast, focus states.',
+  },
+  {
+    emoji: '▲',
+    name: 'Next.js',
+    level: 'learning',
+    tag: 'Actively learning',
+    body: 'App Router, file-based routing and server components — learned by rebuilding Taskflow as a real task manager UI.',
+  },
+  {
+    emoji: '⚡',
+    name: 'Supabase & Postgres',
+    level: 'learning',
+    tag: 'Actively learning',
+    body: 'Auth flows, typed tables and SQL policies, wired into Meridian Health EHR as my first real backend.',
+  },
+  {
+    emoji: '🛠️',
+    name: 'Tooling',
+    level: 'confident',
+    tag: 'Workflow',
+    body: 'Git & GitHub, Vite, ESLint, Prettier, CI checks, Figma-to-code handoffs, and Vercel deploys.',
+  },
+] satisfies {
+  emoji: string;
+  name: string;
+  level: SkillLevel;
+  tag: string;
+  body: string;
+}[];
+
+export const projects = [
+  {
+    emoji: '🌾',
+    name: 'Gandaria Farms',
+    url: 'https://github.com/BuffNdaHood62/Gandaria-Farms',
+    tags: ['React', 'TypeScript', 'Vite', 'Tailwind'],
+    status: 'Live on Vercel',
+    body: 'Agribusiness marketing site built from Figma mockups: multi-page layout, real product photography and a token-based Tailwind theme. My first design-to-code-to-deploy cycle end to end.',
+  },
+  {
+    emoji: '✅',
+    name: 'Taskflow',
+    url: 'https://github.com/BuffNdaHood62/Taskflow',
+    tags: ['Next.js', 'TypeScript', 'Tailwind'],
+    status: 'Shipped',
+    body: 'Task manager UI in the Next.js App Router — kanban board, calendar and list views, a task detail panel, a command palette, and dark-mode theming.',
   },
 ];
 
-export const services = [
+export const upcoming = [
   {
-    title: 'Product UX',
-    body: 'End-to-end product design: research, flows, wireframes and polished UI for web and mobile apps that need to do more than look good.',
-    tags: ['Research', 'Flows & IA', 'UI Design', 'Usability testing'],
+    emoji: '🏥',
+    name: 'Meridian Health EHR',
+    url: 'https://github.com/BuffNdaHood62/meridian-health-ehr',
+    tags: ['React', 'TypeScript', 'Supabase'],
+    status: 'In progress',
+    body: 'Electronic health records app: Supabase auth and Postgres data, clinician charts and dashboards, a CI pipeline and written engineering standards. My biggest codebase yet.',
   },
   {
-    title: 'Design Systems',
-    body: 'Token-first component libraries that keep large products consistent and fast to build — documented and wired for engineering handoff.',
-    tags: ['Tokens', 'Component libraries', 'Documentation', 'Governance'],
+    emoji: '🧩',
+    name: 'Component library',
+    url: null,
+    tags: ['React', 'TypeScript', 'a11y'],
+    status: 'Planned',
+    body: 'Extract the accessible, token-driven components I keep rebuilding — buttons, dialogs, nav — into a documented library with its own site.',
   },
   {
-    title: 'Creative Frontend',
-    body: 'Award-grade marketing sites and interactive experiences built with React — motion, 3D and micro-interactions with production performance.',
-    tags: ['React & Vite', 'Motion design', 'WebGL/Three.js', 'Performance'],
+    emoji: '🌀',
+    name: 'Motion studies',
+    url: null,
+    tags: ['Framer Motion', 'CSS'],
+    status: 'Planned',
+    body: 'A series of small experiments in scroll choreography, springs and reduced-motion fallbacks — the polish layer I want to get genuinely good at.',
   },
 ];
 
-export const booking = {
-  label: 'Free 30-min intro call',
-  timezone: 'WAT — Nigeria (UTC+1)',
-  times: ['09:00', '10:30', '13:00', '15:00', '16:30'],
-};
-
-/** How many of a single day's slots the fabricated pattern may take. */
-const MAX_BOOKED_PER_DAY = 2;
-
-/** The raw pattern, before the per-day cap is applied. */
-const looksTaken = (dayIndex: number, slotIndex: number) =>
-  ((dayIndex + 2) * (slotIndex + 3)) % 5 === 0;
+export type RoadmapStatus = 'done' | 'in-progress' | 'next' | 'planned';
 
 /**
- * Deterministic pseudo-availability so the calendar looks real without a backend.
- *
- * The cap is the point. The raw pattern takes *every* slot whenever
- * `dayIndex ≡ 3 (mod 5)`, which rendered whole days with nothing left to book —
- * five struck-through buttons under an "Available slots" heading, and no way
- * forward. The availability is invented anyway, so a sold-out day could only
- * ever turn away an enquiry.
+ * The published learning roadmap. Statuses are data, so flipping a stage from
+ * 'next' to 'in-progress' updates the page, the stats and the tests at once.
  */
-export function isSlotBooked(dayIndex: number, slotIndex: number) {
-  if (!looksTaken(dayIndex, slotIndex)) return false;
-  let takenEarlier = 0;
-  for (let earlier = 0; earlier < slotIndex; earlier += 1) {
-    if (looksTaken(dayIndex, earlier)) takenEarlier += 1;
-  }
-  return takenEarlier < MAX_BOOKED_PER_DAY;
-}
+export const roadmap: {
+  title: string;
+  body: string;
+  status: RoadmapStatus;
+}[] = [
+  {
+    title: 'HTML, CSS & JavaScript fundamentals',
+    body: 'Semantic markup, layout, and the language itself — closures, async, the DOM — before any framework.',
+    status: 'done',
+  },
+  {
+    title: 'React + TypeScript',
+    body: 'Components, hooks and typed props, practised on every project shipped since.',
+    status: 'done',
+  },
+  {
+    title: 'Design-to-code & Tailwind',
+    body: 'Turning Figma mockups into responsive interfaces with token systems, not pixel-guessing.',
+    status: 'done',
+  },
+  {
+    title: 'Git, GitHub & deploys',
+    body: 'Branching, PRs and Vercel deployments — every project on this page went through them.',
+    status: 'done',
+  },
+  {
+    title: 'Next.js App Router',
+    body: 'Routing, server components and rendering modes, learned by building Taskflow.',
+    status: 'in-progress',
+  },
+  {
+    title: 'Supabase auth & Postgres',
+    body: 'Real data and sessions behind Meridian Health EHR — the backend-for-frontend step.',
+    status: 'in-progress',
+  },
+  {
+    title: 'Testing & CI discipline',
+    body: 'Automated checks that catch regressions before deploy, like the harness this site runs on.',
+    status: 'next',
+  },
+  {
+    title: 'Advanced motion & interaction polish',
+    body: 'Scroll choreography, gesture physics and reduced-motion craft at production quality.',
+    status: 'next',
+  },
+  {
+    title: 'Full-stack fluency',
+    body: 'Owning a feature end to end: schema, API, UI, deploy, monitor.',
+    status: 'planned',
+  },
+];
+
+export const aboutMeta = [
+  { key: 'Focus', value: `${buildsWith} · TypeScript · UI craft` },
+  { key: 'Loves', value: 'Clean components, honest states' },
+  { key: 'Learning', value: 'Next.js & Supabase' },
+  { key: 'Style', value: 'Ship, then sharpen' },
+] as const;
+
+/**
+ * Hero stats derived from the content itself — the count of shipped projects is
+ * whatever `projects` says, never a typed-in number that can drift.
+ */
+export const stats = [
+  { value: String(projects.length), label: 'projects shipped' },
+  {
+    value: String(skills.filter((s) => s.level === 'core' || s.level === 'confident').length),
+    label: 'technologies I work with',
+  },
+  {
+    value: String(roadmap.filter((r) => r.status === 'in-progress').length),
+    label: 'skills in progress right now',
+  },
+];

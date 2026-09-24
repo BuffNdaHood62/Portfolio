@@ -33,9 +33,10 @@ export default {
         ogImageHeight: content('meta[property="og:image:height"]'),
         twitterCard: content('meta[name="twitter:card"]'),
         twitterImage: content('meta[name="twitter:image"]'),
-        themeColor: content('meta[name="theme-color"]'),
-        paperToken: getComputedStyle(document.documentElement)
-          .getPropertyValue('--color-paper').trim(),
+        themeColors: [...document.querySelectorAll('meta[name="theme-color"]')].map((m) => ({
+          content: m.getAttribute('content'),
+          media: m.getAttribute('media'),
+        })),
         iconSvg: href('link[rel="icon"][type="image/svg+xml"]'),
         iconPng: href('link[rel="icon"][type="image/png"]'),
         appleIcon: href('link[rel="apple-touch-icon"]'),
@@ -52,12 +53,34 @@ export default {
     t.check('og:title is set', Boolean(head.ogTitle), head.ogTitle);
     t.check('og:description is set', Boolean(head.ogDescription), head.ogDescription);
 
-    // Cross-check the head against the live token rather than a hardcoded hex, so
-    // editing --color-paper in index.css without updating theme-color fails here.
+    // Cross-check the head against both token values rather than hardcoded hexes, so
+    // editing --paper in index.css without updating theme-color fails here. Both
+    // schemes must be declared: the dark one is what keeps mobile browser chrome
+    // from flashing light on a dark-theme visit. Read the tokens by flipping the
+    // class, not from the page's current state — the test browser boots in whichever
+    // scheme the OS asks for, and a "current value" comparison would fail the light
+    // check on a dark boot.
+    const papers = await evaluate(`(() => {
+      const root = document.documentElement;
+      const had = root.classList.contains('dark');
+      root.classList.add('dark');
+      const dark = getComputedStyle(root).getPropertyValue('--paper').trim();
+      root.classList.remove('dark');
+      const light = getComputedStyle(root).getPropertyValue('--paper').trim();
+      if (had) root.classList.add('dark');
+      return { light, dark };
+    })()`);
+    const lightMeta = head.themeColors.find((m) => m.media?.includes('light'));
+    const darkMeta = head.themeColors.find((m) => m.media?.includes('dark'));
     t.check(
-      'theme-color matches the paper token',
-      head.themeColor?.toLowerCase() === head.paperToken?.toLowerCase(),
-      `head ${head.themeColor}, --color-paper ${head.paperToken}`,
+      'the light theme-color matches the light paper token',
+      lightMeta?.content?.toLowerCase() === papers.light?.toLowerCase(),
+      `head ${lightMeta?.content}, --paper ${papers.light}`,
+    );
+    t.check(
+      'the dark theme-color matches the dark paper token',
+      darkMeta?.content?.toLowerCase() === papers.dark?.toLowerCase(),
+      `head ${darkMeta?.content}, --paper ${papers.dark}`,
     );
 
     // --- assets actually resolve -------------------------------------------------

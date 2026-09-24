@@ -30,10 +30,10 @@ export default {
     const prefersReduced = () =>
       evaluate(`window.matchMedia('(prefers-reduced-motion: reduce)').matches`);
 
-    // Where #approach should land: its offset, less the fixed header that every section
+    // Where #about should land: its offset, less the fixed header that every section
     // clears with `scroll-mt-24` (96px).
     const expected = await evaluate(`(() => {
-      const el = document.getElementById('approach');
+      const el = document.getElementById('about');
       return Math.round(el.getBoundingClientRect().top + window.scrollY - 96);
     })()`);
 

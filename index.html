@@ -3,10 +3,10 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Michael Nnamdi — UI/UX Designer &amp; Creative Frontend</title>
+    <title>Michael Nnamdi — Frontend Developer</title>
     <meta
       name="description"
-      content="Michael Nnamdi is a UI/UX designer who ships. Product design, design systems and creative frontend — design that feels inevitable, and ships."
+      content="Michael Nnamdi is a frontend developer building things with React. TypeScript, Tailwind and Next.js — shipped projects and a published learning roadmap."
     />
 
     <!--
@@ -20,27 +20,47 @@
     -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Michael Nnamdi" />
-    <meta property="og:title" content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend" />
+    <meta property="og:title" content="Michael Nnamdi — Frontend Developer" />
     <meta
       property="og:description"
-      content="Design that feels inevitable — and ships. Product design, design systems and creative frontend with production-grade craft."
+      content="I build things with React. Shipped projects, honest skills and a published roadmap — one deployed project at a time."
     />
     <meta property="og:image" content="/og-image.png" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta
       property="og:image:alt"
-      content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend"
+      content="Michael Nnamdi — Frontend Developer"
     />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Michael Nnamdi — UI/UX Designer &amp; Creative Frontend" />
+    <meta name="twitter:title" content="Michael Nnamdi — Frontend Developer" />
     <meta
       name="twitter:description"
-      content="Design that feels inevitable — and ships. Product design, design systems and creative frontend with production-grade craft."
+      content="I build things with React. Shipped projects, honest skills and a published roadmap — one deployed project at a time."
     />
     <meta name="twitter:image" content="/og-image.png" />
 
-    <meta name="theme-color" content="#faf7f2" />
+    <meta name="theme-color" content="#faf7f2" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#14110d" media="(prefers-color-scheme: dark)" />
+
+    <!--
+      Theme bootstrap. Runs before first paint so a dark-mode visitor never sees the
+      light background flash. lib/theme.ts reads the class this script sets; the two
+      must agree on the 'theme' localStorage key and the 'dark' class name.
+    -->
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem('theme');
+          var dark = stored
+            ? stored === 'dark'
+            : window.matchMedia('(prefers-color-scheme: dark)').matches;
+          document.documentElement.classList.toggle('dark', dark);
+        } catch (e) {
+          /* private-mode storage failures must not block render */
+        }
+      })();
+    </script>
 
     <!-- Icons. `public/favicon.svg` is the source; regenerate rasters with `npm run assets`. -->
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

@@ -85,7 +85,7 @@ function cardHtml() {
   </div>
   <div>
     <h1 class="name">Michael Nnamdi<span class="stop">.</span></h1>
-    <p class="hook">I build things with React. <em>And ship them.</em></p>
+    <p class="hook">Building web apps <em>that ship.</em></p>
   </div>
   <div class="foot">
     <span>Open to opportunities</span>

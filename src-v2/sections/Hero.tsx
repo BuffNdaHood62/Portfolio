@@ -1,5 +1,5 @@
 import { m, useReducedMotion } from 'framer-motion';
-import { site, buildsWith, stats } from '../data/site';
+import { site, stats } from '../data/site';
 import { scrollToSection } from '../lib/scroll';
 import { LineMask } from '../components/Reveal';
 import Magnetic from '../components/Magnetic';
@@ -25,9 +25,9 @@ export default function Hero() {
         <p className="mt-10 text-lg text-muted md:text-xl">Hi, I&apos;m {site.name}.</p>
 
         <h1 className="mt-2 font-display text-[clamp(2.75rem,8vw,6.5rem)] font-medium leading-[0.98] tracking-[-0.02em]">
-          <LineMask delay={0.15}>I build things</LineMask>
+          <LineMask delay={0.15}>Building web apps</LineMask>
           <LineMask delay={0.28}>
-            with {buildsWith}
+            that ship
             <span className="text-accent">.</span>
           </LineMask>
         </h1>

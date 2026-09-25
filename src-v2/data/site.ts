@@ -35,7 +35,7 @@ export const site = {
   firstName: 'Michael',
   handle: 'michael.nnamdi',
   role: 'Frontend Developer',
-  tagline: `I build things with ${buildsWith}.`,
+  tagline: 'Building web apps that ship.',
   email: 'michaelnnamdi04@gmail.com',
   location: `${country} · working worldwide`,
   availability: 'Open to opportunities',

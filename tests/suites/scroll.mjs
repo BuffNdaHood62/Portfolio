@@ -77,7 +77,51 @@ export default {
       `${logoClick}; scrollY=${afterLogo}`,
     );
 
-    // --- 5. Footer link ------------------------------------------------------
+    // --- 5. Back to top ------------------------------------------------------
+    // The button is permanently mounted and toggles between inert/hidden and
+    // live/visible, so the checks read the same two signals: computed opacity
+    // and the presence of `inert`.
+    const topBtn = `'button[aria-label="Back to top"]'`;
+    const probeTopBtn = () =>
+      evaluate(`(() => {
+        const b = document.querySelector(${topBtn});
+        if (!b) return null;
+        return { opacity: parseFloat(getComputedStyle(b).opacity), inert: b.hasAttribute('inert') };
+      })()`);
+
+    // The logo click above left us at scrollY 0 — it must be tucked away here.
+    // Short settle first: the hide is driven by a scroll event into React state.
+    await sleep(200);
+    const atTop = await probeTopBtn();
+    t.check(
+      'back-to-top is hidden at the top of the page',
+      !!atTop && atTop.opacity < 0.05 && atTop.inert,
+      JSON.stringify(atTop),
+    );
+
+    await evaluate('window.scrollTo(0, document.documentElement.scrollHeight)');
+    await sleep(300);
+    const atBottom = await probeTopBtn();
+    t.check(
+      'back-to-top appears once the hero is left behind, through to the end',
+      !!atBottom && atBottom.opacity > 0.95 && !atBottom.inert,
+      JSON.stringify(atBottom),
+    );
+
+    await evaluate(`document.querySelector(${topBtn}).click()`);
+    await waitFor('Math.round(window.scrollY) === 0', 'back-to-top to return to the top');
+    await sleep(200);
+    const afterTopBtn = await probeTopBtn();
+    t.check(
+      'back-to-top click returns to the top and hides again',
+      (await evaluate('Math.round(window.scrollY)')) === 0 &&
+        !!afterTopBtn &&
+        afterTopBtn.opacity < 0.05 &&
+        afterTopBtn.inert,
+      JSON.stringify(afterTopBtn),
+    );
+
+    // --- 6. Footer link ------------------------------------------------------
     const footerClick = await evaluate(clickTextExpr('nav[aria-label="Footer"] button', 'contact'));
     const footerSettled = await waitFor(settledExpr('contact'), '#contact to settle');
     const con = await evaluate(sectionTopExpr('contact'));
@@ -87,7 +131,7 @@ export default {
       `${footerClick}; scrollY=${con?.scrollY}, top=${con?.top} (want ~${HEADER_OFFSET})`,
     );
 
-    // --- 6. Mobile menu ------------------------------------------------------
+    // --- 7. Mobile menu ------------------------------------------------------
     // 500 rather than 390: Windows headless clamps to a ~500px minimum width, so a
     // narrower request is silently letterboxed and the test would be measuring a
     // viewport it never got.

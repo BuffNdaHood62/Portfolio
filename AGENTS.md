@@ -35,6 +35,16 @@ roadmap (structure inspired by developer-journey portfolios).
   choice before first paint; `lib/theme.ts` reads the `dark` class React renders from.
   All three must agree on the `'theme'` storage key and `'dark'` class name — the
   reload check in `tests/suites/theme.mjs` fails when they don't.
+- **The theme crossfade is a three-way sync.** `lib/theme.ts` adds `theme-animating`
+  to `<html>` around a toggle; the rule in `index.css` gives it a 250ms colour
+  transition; the JS removes the class 50ms after that. Change one, change the
+  others. The rule carries no `!important` *on purpose* so the reduced-motion block
+  keeps flattening it to instant — `theme.mjs` asserts both halves.
+- **Back-to-top is a CSS-transitioned always-mounted button**
+  (`components/BackToTop.tsx`). Hidden state is `opacity-0` + `inert`, shown once
+  `scrollY > innerHeight`. Do not swap it for a conditionally-mounted framer
+  component: the fade must retarget mid-transition when the user scrolls back and
+  forth, and `inert` is what keeps the invisible button out of tab order.
 
 ## Commands
 

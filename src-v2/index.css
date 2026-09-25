@@ -97,6 +97,22 @@
   @apply font-mono text-[0.65rem] font-medium tracking-[0.2em] uppercase text-muted;
 }
 
+/* Colour crossfade while the theme flips. `lib/theme.ts` puts `theme-animating`
+   on <html> for ~300ms around a toggle — without it every token-derived colour
+   changes on a single frame. Scoped to a temporary class so the cost is zero
+   the rest of the time, and deliberately *without* `!important`: the reduced
+   motion block below must keep winning it to instant.
+   The duration must stay in sync with CROSSFADE_MS in lib/theme.ts. */
+html.theme-animating,
+html.theme-animating *,
+html.theme-animating *::before,
+html.theme-animating *::after {
+  transition-property: background-color, color, border-color, fill, stroke,
+    outline-color, text-decoration-color, box-shadow;
+  transition-duration: 250ms;
+  transition-timing-function: ease;
+}
+
 /* Intentionally kept alongside the useReducedMotion() checks in components:
    the hook skips JS-driven (framer-motion) animation, while this covers raw
    CSS transitions and the animate-pulse-dot utility that run on the compositor.

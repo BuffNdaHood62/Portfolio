@@ -1,5 +1,6 @@
 import Nav from './components/Nav';
 import Footer from './components/Footer';
+import BackToTop from './components/BackToTop';
 import SmoothScroll from './components/SmoothScroll';
 import Home from './pages/Home';
 
@@ -15,6 +16,7 @@ export default function App() {
         <Home />
       </main>
       <Footer />
+      <BackToTop />
     </div>
   );
 }
